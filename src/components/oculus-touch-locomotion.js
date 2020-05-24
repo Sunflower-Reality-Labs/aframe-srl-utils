@@ -15,16 +15,23 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
   init: function () {
     var el = this.el;
     this.axismove = null;
-    this.trackpadtouched = false;
+    this.thumbsticktouched = false;
+    this.thumbstickpressed = false;    
     el.addEventListener("axismove", (evt) => {
       this.axismove = {x: evt.detail.axis[2], y: evt.detail.axis[3] };
     })
     el.addEventListener("thumbsticktouchstart", (evt) => {
-      this.trackpadtouched = true;
+      this.thumbsticktouched = true;
     })
+    el.addEventListener("thumbstickdown", (evt) => {
+      this.thumbstickpress = true;
+    })    
     el.addEventListener("thumbsticktouchend", (evt) => {
-      this.trackpadtouched = false;
+      this.thumbsticktouched = false;
     })
+    el.addEventListener("thumbstickup", (evt) => {
+      this.thumbstickpress = false;
+    })    
 /*    
     el.addEventListener("triggerdown", (evt) => {
       this.trigger = true;
@@ -66,6 +73,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     
     if (this.axismove) {
       let step = delta * 0.002; // how fast you move
+      if (this.thumbstickpress) {
+	step *= 5.0;
+      }
 
       mv = { x: (-this.axismove.x) * step, 
 	     y: (-this.axismove.y) * step
