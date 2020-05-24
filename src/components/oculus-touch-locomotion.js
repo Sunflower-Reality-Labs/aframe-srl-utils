@@ -77,12 +77,11 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 	step *= 5.0;
       }
 
-      mv = { x: (-this.axismove.x) * step, 
-	     y: (-this.axismove.y) * step
-	   };
-      let mv2 = new THREE.Vector2(-mv.x,-mv.y);
-      mv2.rotateAround(new THREE.Vector2(),-(controlO.yaw+rigO.yaw));
-      rig.object3D.position.add({x:mv2.x,y:0,z:mv2.y});
+      let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
+      let origin = new THREE.Vector2();
+      mv.multiplyScalar(step);
+      mv.rotateAround(origin,-(controlO.yaw+rigO.yaw));
+      rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
     }
   },
 
