@@ -2,7 +2,12 @@
  * SRL Oculus Touch locomotion component for A-Frame.
  */
 AFRAME.registerComponent('srl-oculus-touch-locomotion', {
-  schema: {},
+  schema: {
+    // How fast do you move when walking, in m/ms    
+    walking: {type: 'number', default: 20 },
+    // How fast do you move when running, in m/ms    
+    running: {type: 'number', default: 10 }  
+  },
 
   /**
    * Set if component needs multiple instancing.
@@ -72,16 +77,19 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     let updown = false;
     
     if (this.axismove) {
-      let step = delta * 0.002; // how fast you move
-      if (this.thumbstickpress) {
-	step *= 5.0;
-      }
-
       let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
-      let origin = new THREE.Vector2();
-      mv.multiplyScalar(step);
-      mv.rotateAround(origin,-(controlO.yaw+rigO.yaw));
-      rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+      if (mv.length() > 0) {
+	let step = delta * this.data.walking; // how fast you move
+	if (this.thumbstickpress) {
+	  step = delta * this.data.running;
+	}
+	
+	let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
+	let origin = new THREE.Vector2();
+	mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
+	mv.rotateAround(origin,-(controlO.yaw+rigO.yaw));
+	rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+      }
     }
   },
 
