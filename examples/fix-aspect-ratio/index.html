@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>A-Frame SRL Utils - Fix Aspect Ratio</title>
+    <meta name="description" content="Fix Image Aspect Ratio"></meta>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="../../aframe-srl-utils.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.0.0/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <a-scene environment="preset: forest; shadow: true">
+      <a-assets>
+	<img id="jayhawk" src="../assets/jawhawk.png">
+      </a-assets>
+
+      <a-entity light="type:directional; castShadow:true;" position="-5 5 0"></a-entity>
+
+      <a-image src="#jayhawk"
+	       position="0 0.9 -4"
+	       height="1.8"
+	       srl-fix-aspect-ratio
+	       >
+      </a-image>
+      
+      <a-entity id="rig"
+		position="0 0 0"
+		rotation="0 0 0">
+	<a-entity camera
+		  position="0 1.6 0"
+		  wasd-controls 
+		  look-controls="pointerLockEnabled: true"></a-entity>
+	<a-entity oculus-touch-controls="hand: left; orientation-offset: {x:1,y:2,z:3}" srl-oculus-touch-locomotion="">
+	</a-entity>
+	<a-entity oculus-touch-controls="hand: right" srl-oculus-touch-locomotion="">
+	</a-entity>
+      </a-entity>
+    </a-scene>
+
+  </body>
+</html>
