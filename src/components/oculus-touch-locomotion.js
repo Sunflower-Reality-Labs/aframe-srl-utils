@@ -116,6 +116,18 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     thumbstickup: function (evt) {
       this.thumbstickpress = false;
     },
+    bbuttondown: function (evt) {
+      this.upbuttonpress = true;
+    },
+    bbuttonup: function (evt) {
+      this.upbuttonpress = false;
+    },
+    abuttondown: function (evt) {
+      this.downbuttonpress = true;
+    },
+    abuttonup: function (evt) {
+      this.downbuttonpress = false;
+    },
     ybuttondown: function (evt) {
       this.upbuttonpress = true;
     },
