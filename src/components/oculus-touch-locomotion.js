@@ -27,6 +27,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.upbuttonpress     = false;
     this.downbuttonpress   = false;
 
+    this.origin = new THREE.Vector2();    
     // The nominal height of the actor
     this.height = 0;
     // The actual y (up/down) velocity of the actor
@@ -67,11 +68,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 	if (this.thumbstickpress) {
 	  step = delta * this.data.running;
 	}
-	
-	let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
 	let origin = new THREE.Vector2();
 	mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
-	mv.rotateAround(origin,-(controlO.yaw+rigO.yaw));
+	mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
 	rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
       }
     }
@@ -80,6 +79,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     }
     if (this.downbuttonpress) {
       rig.object3D.position.add({x:0,y:-this.data.stretching*delta*0.001,z:0});
+    }
+    if (this.triggerpress) {
+      rig.object3D.rotateY((this.direction - (controlO.yaw+rigO.yaw)));
     }
   },
 
@@ -125,10 +127,19 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     xbuttonup: function (evt) {
       this.downbuttonpress = false;
+    },
+    triggerdown: function (evt) {
+      this.triggerpress = true;
+      let rig = document.getElementById('rig');      
+      this.direction =
+	toolOrientation(this.el.object3D.rotation).yaw +
+	toolOrientation(rig.object3D.rotation).yaw;
+    },
+    triggerup: function (evt) {
+      this.triggerpress = false;
     }
   }
 });
-
 
 // This code gets reasonable pitch,roll,yaw for our controller.
 function toolOrientation(r) {
