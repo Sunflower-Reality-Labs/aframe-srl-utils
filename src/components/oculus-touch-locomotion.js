@@ -8,7 +8,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     // How fast do you move when running, in m/s    
     running: {type: 'number', default: 10 },
     // How fast do you move when streching, in m/s    
-    stretching: {type: 'number', default: 1 },
+    stretching: {type: 'number', default: 1 }
   },
 
   /**
@@ -24,13 +24,15 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.axismove = null;
     this.thumbsticktouched = false;
     this.thumbstickpress   = false;
+    this.upbuttontouch     = false;
+    this.downbuttontouch   = false;
     this.upbuttonpress     = false;
     this.downbuttonpress   = false;
     this.triggertouch      = false;    
     this.triggerpress      = false;    
 
     this.origin = new THREE.Vector2();    
-    // The nominal height of the actor
+    // The nominal height of the actor's feet
     this.height = 0;
     // The actual y (up/down) velocity of the actor
     this.velocity = 0;
@@ -92,10 +94,18 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       }
     }
     if (this.upbuttonpress) {
-      rig.object3D.position.add({x:0,y:this.data.stretching*delta*0.001,z:0});
+      let y = this.data.stretching*delta*0.001;
+      if (this.grippress) {
+	y *= 0.2;
+      }
+      rig.object3D.position.add({x:0,y:y,z:0});
     }
     if (this.downbuttonpress) {
-      rig.object3D.position.add({x:0,y:-this.data.stretching*delta*0.001,z:0});
+      let y = this.data.stretching*delta*0.001;
+      if (this.grippress) {
+	y *= 0.2;
+      }
+      rig.object3D.position.add({x:0,y:-y,z:0});
     }
     let vis = this.elSphere.getAttribute("material").visible;
     if (this.triggerpress) {
@@ -141,11 +151,23 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     thumbstickup: function (evt) {
       this.thumbstickpress = false;
     },
+    bbuttontouchstart: function (evt) {
+      this.upbuttontouch = true;
+    },
+    bbuttontouchend: function (evt) {
+      this.upbuttontouch = false;
+    },
     bbuttondown: function (evt) {
       this.upbuttonpress = true;
     },
     bbuttonup: function (evt) {
       this.upbuttonpress = false;
+    },
+    abuttontouchstart: function (evt) {
+      this.downbuttontouch = true;
+    },
+    abuttontouchend: function (evt) {
+      this.downbuttontouch = false;
     },
     abuttondown: function (evt) {
       this.downbuttonpress = true;
@@ -153,11 +175,23 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     abuttonup: function (evt) {
       this.downbuttonpress = false;
     },
+    ybuttontouchstart: function (evt) {
+      this.upbuttontouch = true;
+    },
+    ybuttontouchend: function (evt) {
+      this.upbuttontouch = false;
+    },
     ybuttondown: function (evt) {
       this.upbuttonpress = true;
     },
     ybuttonup: function (evt) {
       this.upbuttonpress = false;
+    },
+    xbuttontouchstart: function (evt) {
+      this.downbuttontouch = true;
+    },
+    xbuttontouchend: function (evt) {
+      this.downbuttontouch = false;
     },
     xbuttondown: function (evt) {
       this.downbuttonpress = true;
@@ -180,6 +214,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     triggertouchend: function (evt) {
       this.triggertouch = false;
+    },
+    gripdown: function (evt) {
+      this.grippress = true;
+    },
+    gripup: function (evt) {
+      this.grippress = false;
     }
   }
 });
