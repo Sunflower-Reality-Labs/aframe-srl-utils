@@ -26,12 +26,29 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.thumbstickpress   = false;
     this.upbuttonpress     = false;
     this.downbuttonpress   = false;
+    this.triggertouch      = false;    
+    this.triggerpress      = false;    
 
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor
     this.height = 0;
     // The actual y (up/down) velocity of the actor
     this.velocity = 0;
+
+    this.elSphere = document.createElement('a-entity');
+    this.elSphere.setAttribute("geometry",
+			       {primitive: "sphere", radius: 0.02,
+//				phiLength: 90,
+//				phiStart: 225,
+//				thetaStart: 65,
+//				thetaLength: 50,
+				segmentsHeight: 8,
+				segmentsWidth: 8				
+			       });      
+    this.elSphere.setAttribute("material",
+			       {color: "red", wireframe: true, visible: true});
+    this.elSphere.setAttribute("position",{x:0,y:0,z:-2});
+    el.appendChild(this.elSphere);
   },
 
   /**
@@ -80,8 +97,16 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     if (this.downbuttonpress) {
       rig.object3D.position.add({x:0,y:-this.data.stretching*delta*0.001,z:0});
     }
+    let vis = this.elSphere.getAttribute("material").visible;
     if (this.triggerpress) {
+      if (!vis) {      
+	this.elSphere.setAttribute("material","visible",true);
+      }
       rig.object3D.rotateY((this.direction - (controlO.yaw+rigO.yaw)));
+    } else {
+      if (vis) {      
+	this.elSphere.setAttribute("material","visible",false);
+      }
     }
   },
 
@@ -149,6 +174,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     triggerup: function (evt) {
       this.triggerpress = false;
+    },
+    triggertouchstart: function (evt) {
+      this.triggertouch = true;
+    },
+    triggertouchend: function (evt) {
+      this.triggertouch = false;
     }
   }
 });
