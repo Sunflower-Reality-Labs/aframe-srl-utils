@@ -74,12 +74,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 	mv.rotateAround(origin,-(controlO.yaw+rigO.yaw));
 	rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
       }
-      if (this.upbuttonpress) {
-	rig.object3D.position.add({x:0,y:this.data.stretching*delta*0.001,z:0});
-      }
-	if (this.downbuttonpress) {
-	  rig.object3D.position.add({x:0,y:-this.data.stretching*delta*0.001,z:0});
-	}
+    }
+    if (this.upbuttonpress) {
+      rig.object3D.position.add({x:0,y:this.data.stretching*delta*0.001,z:0});
+    }
+    if (this.downbuttonpress) {
+      rig.object3D.position.add({x:0,y:-this.data.stretching*delta*0.001,z:0});
     }
   },
 
