@@ -3,10 +3,12 @@
  */
 AFRAME.registerComponent('srl-oculus-touch-locomotion', {
   schema: {
-    // How fast do you move when walking, in m/ms    
-    walking: {type: 'number', default: 20 },
-    // How fast do you move when running, in m/ms    
-    running: {type: 'number', default: 10 }  
+    // How fast do you move when walking, in m/s    
+    walking: {type: 'number', default: 2 },
+    // How fast do you move when running, in m/s    
+    running: {type: 'number', default: 10 },
+    // How fast do you move when streching, in m/s    
+    stretching: {type: 'number', default: 1 },
   },
 
   /**
@@ -21,32 +23,14 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     var el = this.el;
     this.axismove = null;
     this.thumbsticktouched = false;
-    this.thumbstickpressed = false;    
-    el.addEventListener("axismove", (evt) => {
-      this.axismove = {x: evt.detail.axis[2], y: evt.detail.axis[3] };
-    })
-    el.addEventListener("thumbsticktouchstart", (evt) => {
-      this.thumbsticktouched = true;
-    })
-    el.addEventListener("thumbstickdown", (evt) => {
-      this.thumbstickpress = true;
-    })    
-    el.addEventListener("thumbsticktouchend", (evt) => {
-      this.thumbsticktouched = false;
-    })
-    el.addEventListener("thumbstickup", (evt) => {
-      this.thumbstickpress = false;
-    })    
-/*    
-    el.addEventListener("triggerdown", (evt) => {
-      this.trigger = true;
-    })
-    el.addEventListener("triggerup", (evt) => {
-      let rig = document.getElementById('rig');
-      rig.object3D.rotateY(this.el.object3D.rotation.y);
-      this.trigger = false;
-    })
-*/
+    this.thumbstickpress   = false;
+    this.upbuttonpress     = false;
+    this.downbuttonpress   = false;
+
+    // The nominal height of the actor
+    this.height = 0;
+    // The actual y (up/down) velocity of the actor
+    this.velocity = 0;
   },
 
   /**
@@ -75,7 +59,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     el.object3D.getWorldPosition(wp);
 
     let updown = false;
-    
+
     if (this.axismove) {
       let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
       if (mv.length() > 0) {
@@ -90,6 +74,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 	mv.rotateAround(origin,-(controlO.yaw+rigO.yaw));
 	rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
       }
+      if (this.upbuttonpress) {
+	rig.object3D.position.add({x:0,y:this.data.stretching*delta*0.001,z:0});
+      }
+	if (this.downbuttonpress) {
+	  rig.object3D.position.add({x:0,y:-this.data.stretching*delta*0.001,z:0});
+	}
     }
   },
 
@@ -109,20 +99,39 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
    * Event handlers that automatically get attached or detached based on scene state.
    */
   events: {
-    // click: function (evt) { }
+    axismove: function (evt) {
+      this.axismove = {x: evt.detail.axis[2], y: evt.detail.axis[3] };
+    },
+    thumbsticktouchstart: function (evt)  {
+      this.thumbsticktouched = true;
+    },
+    thumbstickdown: function (evt) {
+      this.thumbstickpress = true;
+    },
+    thumbsticktouchend: function (evt) {
+      this.thumbsticktouched = false;
+    },
+    thumbstickup: function (evt) {
+      this.thumbstickpress = false;
+    },
+    ybuttondown: function (evt) {
+      this.upbuttonpress = true;
+    },
+    ybuttonup: function (evt) {
+      this.upbuttonpress = false;
+    },
+    xbuttondown: function (evt) {
+      this.downbuttonpress = true;
+    },
+    xbuttonup: function (evt) {
+      this.downbuttonpress = false;
+    }
   }
 });
 
 
 // This code gets reasonable pitch,roll,yaw for our controller.
-// I'm sure this can be simplified.
 function toolOrientation(r) {
-    let r2 = r.clone().reorder('YXZ');
-    let q = new THREE.Quaternion();
-    let q2 = new THREE.Quaternion();
-    q.setFromEuler(r);
-    q.premultiply(q2.setFromAxisAngle(new THREE.Vector3( 0, 1, 0 ), -r2.y));
-    let r3 = r.clone().setFromQuaternion(q);
-    // Is this the same as a reordering? Or YXZ?
-    return { pitch: r3.x, roll: r3.z, yaw : r2.y };
+  let r2 = r.clone().reorder('YXZ');
+  return { pitch: r2.x, roll: r2.z, yaw : r2.y };
 }
