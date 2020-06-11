@@ -3,7 +3,7 @@
  */
 AFRAME.registerComponent('srl-white-room', {
   schema: {
-    color: { type: 'color', default: '#EEE' },
+    color: { type: 'color', default: '#EEEEEE' },
     size: { type: 'number', default: 10 },
     near: { type: 'number', default: 10 },
     ambient: { type: 'color', default: '#555' },
@@ -25,7 +25,7 @@ AFRAME.registerComponent('srl-white-room', {
     this.el.sceneEl.setAttribute('fog',
 				 'type: linear; ' +
 				 `near: ${this.data.near}; ` +
-				 `far: ${this.data.near + 20}; ` +
+				 `far: ${this.data.near + 10}; ` +
 				 `color: ${this.data.color};`)
     this.el.sceneEl.setAttribute('background', `color: ${this.data.color}`)
 				 
@@ -34,8 +34,8 @@ AFRAME.registerComponent('srl-white-room', {
     this.ground.setAttribute('rotation', '-90 0 0');
     this.ground.setAttribute('geometry',
 			     'primitive: plane; ' +
-			     `width: ${0*this.data.size+50};` +
-			     `height: ${0*this.data.size+50};`)
+			     `width: ${2*this.data.size+50};` +
+			     `height: ${2*this.data.size+50};`)
     this.ground.setAttribute('material',
 			     `color: ${this.data.color}; `)
     this.ground.setAttribute('shadow', 'receive: true; cast: false') // critical on a white floor
