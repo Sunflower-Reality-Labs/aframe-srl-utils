@@ -23,9 +23,10 @@ AFRAME.registerComponent('srl-white-room', {
     console.log('init')
 
     this.el.sceneEl.setAttribute('fog',
-				 'type: linear; ' +
+				 'type: exponential; ' +
 				 `near: ${this.data.near}; ` +
 				 `far: ${this.data.near + 10}; ` +
+				 `density: 0.05; ` + 
 				 `color: ${this.data.color};`)
     this.el.sceneEl.setAttribute('background', `color: ${this.data.color}`)
 				 
