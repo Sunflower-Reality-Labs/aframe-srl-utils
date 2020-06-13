@@ -1,1 +1,2 @@
 require('./components');
+require('./shaders');
