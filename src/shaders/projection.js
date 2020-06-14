@@ -125,23 +125,40 @@ AFRAME.registerComponent('position-setter', {
 
 AFRAME.registerComponent('srl-projection-material', {
   schema: {
-    type: 'selector',
-    default: null
+    projector: { type: 'selector', default: null }
   },  
   init: function () {
+    this.src = null;
     console.log('data',this.data);
     this.el.setAttribute('material',
 			 { shader: "srl-projection-material",
-			   src: "../assets/World.png",
 			   projector: {x:0, y:1, z:-2}
 			 })
   },
   update: function () {
+    this.src = null; // This forces the material src to be reset on the next tick
     console.log('update',this.data);
   },
   tick: function() {
-    return;
+    if (!this.data.projector) {
+      return;
+    }
+    let src = this.data.projector.getAttribute('srl-equirectangular-projector').src;
+    if (src != this.src) {
+      this.src = src;
+      this.el.setAttribute('material', { src: src })
+    }
   }
 });
+
+AFRAME.registerComponent('srl-equirectangular-projector', {
+  schema: {
+    src: { type: 'map' }
+  },
+  init: function () {
+    console.log('projector', this.data);
+  }
+});
+
 
 
