@@ -43,7 +43,7 @@ void main() {
 //-(theModel.xyz - projector.xyz);
   float longitude = atan(theVec.x,theVec.z);
   float latitude = atan(theVec.y,length(theVec.xz));
-  pUV = 0.5 + vec2(longitude/(PI*maxPhi/180.0),(latitude/(PI*maxTheta/180.0)));
+  pUV = 0.5 + vec2(-longitude/(PI*maxPhi/180.0),(latitude/(PI*maxTheta/180.0)));
   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }
 `,

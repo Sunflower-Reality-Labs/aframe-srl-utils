@@ -37,14 +37,16 @@ AFRAME.registerComponent('srl-projection-material', {
     //m = projector.object3D.matrixWorld.clone();
     m.getInverse(projector.object3D.matrixWorld);
     if (this.count++ % 1000 == 10) {
-      console.log('mat4',m);
+      let n = new THREE.Matrix4();
+      n.makeRotationY(3.1415926).multiply(m);
+      console.log('mat4',m,n);
     }
     let e = m.elements;
     // may want to directly update material.uniforms?
-    this.el.setAttribute('material', 'col1', new THREE.Vector4(e[0],e[1],e[2],0))
-    this.el.setAttribute('material', 'col2', new THREE.Vector4(e[4],e[5],e[6],0))
-    this.el.setAttribute('material', 'col3', new THREE.Vector4(e[8],e[9],e[10],0))
-    this.el.setAttribute('material', 'col4', new THREE.Vector4(e[12],e[13],e[14],1))
+    this.el.setAttribute('material', 'col1', new THREE.Vector4(-e[0],e[1],-e[2],0))
+    this.el.setAttribute('material', 'col2', new THREE.Vector4(-e[4],e[5],-e[6],0))
+    this.el.setAttribute('material', 'col3', new THREE.Vector4(-e[8],e[9],-e[10],0))
+    this.el.setAttribute('material', 'col4', new THREE.Vector4(-e[12],e[13],-e[14],1))
 //			 { x: 1, y:0, z:0, w:0 })
     
 
