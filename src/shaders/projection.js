@@ -3,7 +3,7 @@
  */
 
 
-AFRAME.registerShader('srl-projection', {
+AFRAME.registerShader('srl-projection-material', {
   schema: {
     color:     { type: 'color', is: 'uniform'},
     timeMsec:  { type: 'time', is: 'uniform'},
@@ -120,6 +120,27 @@ AFRAME.registerComponent('position-setter', {
     elWorldPosition.setFromMatrixPosition(this.el.object3D.matrixWorld);
     console.log('tick',elWorldPosition);
     this.el.setAttribute('material', 'projector', elWorldPosition);
+  }
+});
+
+AFRAME.registerComponent('srl-projection-material', {
+  schema: {
+    type: 'selector',
+    default: null
+  },  
+  init: function () {
+    console.log('data',this.data);
+    this.el.setAttribute('material',
+			 { shader: "srl-projection-material",
+			   src: "../assets/World.png",
+			   projector: {x:0, y:1, z:-2}
+			 })
+  },
+  update: function () {
+    console.log('update',this.data);
+  },
+  tick: function() {
+    return;
   }
 });
 

@@ -11,8 +11,12 @@
     <a-scene srl-white-room>
 
 
-      <a-sphere id="mine" material="shader:srl-projection; src:../assets/World.png; projector: 0 1 -2"
-		position="0 1 -2" shadow="cast: true" position-setter
+      <a-sphere id="mine"
+
+		position="0 1 -2"
+		shadow="cast: true"
+		srl-projection-material="#p1"
+		position-setter
 		rotation="0 90 0"
 		segments-height="32"
 		segments-width="32"
@@ -21,7 +25,9 @@
 		theta-start="2"
 		theta-length="178"
 		>
-	
+	<a-entity id="p1"
+		  srl-equirectangular-projector="src:../assets/World.png"
+	</a-entity>
       </a-sphere>
 
       <a-sphere src="../assets/World.png" position="5 1 -2" shadow="cast: true" segments-height="36"
