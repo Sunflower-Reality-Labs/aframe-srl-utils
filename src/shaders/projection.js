@@ -129,6 +129,7 @@ AFRAME.registerComponent('srl-projection-material', {
   },  
   init: function () {
     this.src = null;
+    this.projectorWorldPosition = new THREE.Vector3();
     console.log('data',this.data);
     this.el.setAttribute('material',
 			 { shader: "srl-projection-material",
@@ -140,17 +141,29 @@ AFRAME.registerComponent('srl-projection-material', {
     console.log('update',this.data);
   },
   tick: function() {
-    if (!this.data.projector) {
+    let projector = this.data.projector
+    if (!projector) {
       return;
     }
-    let src = this.data.projector.getAttribute('srl-equirectangular-projector').src;
+    let src = projector.getAttribute('srl-equirectangular-projector').src;
     if (src != this.src) {
       this.src = src;
-      this.el.setAttribute('material', { src: src })
+      this.el.setAttribute('material','src', src)
     }
+    projector.object3D.updateMatrixWorld();
+    this.projectorWorldPosition.setFromMatrixPosition(projector.object3D.matrixWorld);
+    console.log('tick',this.projectorWorldPosition,this.el.getAttribute('material').projector);
+    // For some reason, passing in the THREE.Vector3 does not work.
+    this.el.setAttribute('material', 'projector',
+			 { x: this.projectorWorldPosition.x,
+			   y: this.projectorWorldPosition.y,
+			   z: this.projectorWorldPosition.z });
+			   
   }
 });
 
+// It the the *projector* that picks the projection,
+// that is how to project the source image.
 AFRAME.registerComponent('srl-equirectangular-projector', {
   schema: {
     src: { type: 'map' }
