@@ -5,7 +5,6 @@
 AFRAME.registerShader('srl-projection-material', {
   schema: {
     src:       { type: 'map', is: 'uniform' },
-    projector: { type: 'vec3', is: 'uniform' },
     maxPhi:    { type: 'number', is: 'uniform' },
     maxTheta:  { type: 'number', is: 'uniform' },
     col1:      { type: 'vec4', is: 'uniform' },

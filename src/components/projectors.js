@@ -48,12 +48,6 @@ AFRAME.registerComponent('srl-projection-material', {
 	value: this.inverseProjectorModelMatrix,
 	needsUpdate: true };
     
-//    console.log('tick',this.projectorWorldPosition,this.el.getAttribute('material').projector);
-    // For some reason, passing in the THREE.Vector3 direcly does not work.
-    this.el.setAttribute('material', 'projector',
-			 { x: this.projectorWorldPosition.x,
-			   y: this.projectorWorldPosition.y,
-			   z: this.projectorWorldPosition.z });
     this.el.setAttribute('material', 'maxPhi', projectorAttrs.maxPhi);
     this.el.setAttribute('material', 'maxTheta', projectorAttrs.maxTheta);
   }
