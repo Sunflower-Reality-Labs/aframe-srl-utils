@@ -9,6 +9,17 @@ AFRAME.registerShader('srl-projection-material', {
     offsetPhi: { type: 'number', is: 'uniform', default: 0.5 },
     maxTheta:  { type: 'number', is: 'uniform' },
     offsetTheta: { type: 'number', is: 'uniform', default: 0.5 },
+    inverseProjectorModelMatrix: {
+      type: 'mat4',
+      is: 'uniform',
+      default: new THREE.Matrix4(),
+      parse: function(d) {
+	return d;
+      },
+      stringify:function(d) {
+	return d.toString();
+      }
+    }
   },
   
   // Can debug using document.querySelector('#mine').

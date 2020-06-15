@@ -41,13 +41,7 @@ AFRAME.registerComponent('srl-projection-material', {
     if (this.count++ % 1000 == 10) {
       console.log('mat4',this.inverseProjectorModelMatrix);
     }
-    // We need to add mat4 to the registered shader types
-    // For now, we just directly add it to the uniforms
-    this.el.components.material.shader.uniforms.inverseProjectorModelMatrix =
-      { type: 'm',
-	value: this.inverseProjectorModelMatrix,
-	needsUpdate: true };
-    
+    this.el.setAttribute('material', 'inverseProjectorModelMatrix', this.inverseProjectorModelMatrix)
     this.el.setAttribute('material', 'maxPhi', projectorAttrs.maxPhi);
     this.el.setAttribute('material', 'maxTheta', projectorAttrs.maxTheta);
     this.el.setAttribute('material', 'offsetPhi', projectorAttrs.offsetPhi);
