@@ -6,11 +6,7 @@ AFRAME.registerShader('srl-projection-material', {
   schema: {
     src:       { type: 'map', is: 'uniform' },
     maxPhi:    { type: 'number', is: 'uniform' },
-    maxTheta:  { type: 'number', is: 'uniform' },
-    col1:      { type: 'vec4', is: 'uniform' },
-    col2:      { type: 'vec4', is: 'uniform' },
-    col3:      { type: 'vec4', is: 'uniform' },
-    col4:      { type: 'vec4', is: 'uniform' }
+    maxTheta:  { type: 'number', is: 'uniform' }
   },
   
   // Can debug using document.querySelector('#mine').
@@ -18,6 +14,7 @@ AFRAME.registerShader('srl-projection-material', {
 
   vertexShader: `
 const float PI = 3.1415926535897932384626433832795;
+const float PI_180 = PI/180.0;
 
 uniform float maxPhi;
 uniform float maxTheta;
@@ -30,7 +27,7 @@ void main() {
   vec3 theVec   = (inverseProjectorModelMatrix  * theModel).xyz;
   float longitude = atan(theVec.x,theVec.z);
   float latitude = atan(theVec.y,length(theVec.xz));
-  pUV = 0.5 + vec2(-longitude/(PI*maxPhi/180.0),(latitude/(PI*maxTheta/180.0)));
+  pUV = 0.5 + vec2(-longitude/(PI_180*maxPhi),(latitude/(PI_180*maxTheta)));
   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }
 `,
