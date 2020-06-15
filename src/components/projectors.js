@@ -50,6 +50,8 @@ AFRAME.registerComponent('srl-projection-material', {
     
     this.el.setAttribute('material', 'maxPhi', projectorAttrs.maxPhi);
     this.el.setAttribute('material', 'maxTheta', projectorAttrs.maxTheta);
+    this.el.setAttribute('material', 'offsetPhi', projectorAttrs.offsetPhi);
+    this.el.setAttribute('material', 'offsetTheta', projectorAttrs.offsetTheta);
   }
 });
 
@@ -59,7 +61,9 @@ AFRAME.registerComponent('srl-equirectangular-projector', {
   schema: {
     src: { type: 'map' },
     maxPhi: { type: 'number', default: 360 },
-    maxTheta: { type: 'number', default: 180 }
+    offsetPhi: { type: 'number',default: 0.5 },    
+    maxTheta: { type: 'number', default: 180 },
+    offsetTheta: { type: 'number', default: 0.5 },    
   },
   init: function () {
     console.log('projector', this.data);
