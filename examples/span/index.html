@@ -17,24 +17,27 @@
 	  color="red"
 	  position="-2 1 -2"
 	  radius="0.1"
-	  animation="property: position; from: -2 2 -2; to: -2 0 -2; dur: 2000; easing: easeInOutSine; loop: true; dir: alternate">
+	  animation="property: position; from: -2 2 -2; to: -2 0 -2; dur: 1300; easing: easeInOutSine; loop: true; dir: alternate">
 	</a-sphere>
 	<a-sphere
 	  color="green"
 	  position="-1 1 -2"
 	  radius="0.1"
-	  animation="property: position; from: -1 2 -2; to: -1 0 -2; dur: 2400; easing: easeInOutSine; loop: true; dir: alternate"
+	  animation="property: position; from: -1 2 -2; to: -1 0 -2; dur: 1700; easing: easeInOutSine; loop: true; dir: alternate"
+	  segments-height=6
+	  segments-width=6
+	  flat-shading=true
+	  wire-frame=true
 	  id="s2"
 	  >
-	  <a-entity
-	    look-at="#s1"
-	    srl-span="p0: #s1; p1: #s2; span: z"
-	    srl-span2="#s1"
-	    >
+	  <a-entity srl-span="#s1">
 	    <a-cylinder
 	      color="black"
 	      rotation="90 0 0"
 	      position="0 0 0.5"
+	      segments-height=2
+	      segments-radial=6
+	      wireframe=true
 	      radius="0.05"
 	      >
 	    </a-cylinder>
@@ -45,13 +48,10 @@
 	  color="blue"
 	  position="0 1 -2"
 	  radius="0.1"
-	  animation="property: position; from: 0 2 -2; to: 0 0 -2; dur: 2540; easing: easeInOutSine; loop: true; dir: alternate"
+	  animation="property: position; from: 0 2 -2; to: 0 0 -2; dur: 1100; easing: easeInOutSine; loop: true; dir: alternate"
 	  >
 
-	  <a-entity
-	    look-at="#s2"
-	    srl-span="p0: #s2; p1: #s3; span: z"
-	    >
+	  <a-entity srl-span="#s2">
 	    <a-cylinder
 	      color="orange"
 	      rotation="90 0 0"

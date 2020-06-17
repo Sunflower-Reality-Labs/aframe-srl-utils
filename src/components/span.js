@@ -3,9 +3,8 @@
  */
 AFRAME.registerComponent('srl-span', {
   schema: {
-    p0: {type: 'selector' },
-    p1: { type: 'selector' },
-    span: { type: 'string', oneOf: ['x','y','z'] }
+    type: 'selector',
+    default: null
   },
 
   /**
@@ -38,23 +37,18 @@ AFRAME.registerComponent('srl-span', {
    */
   tick: function (t, delta) {
     console.log('tick');
-    let p0 = this.data.p0
-    let p1 = this.data.p1
-    let v0 = new THREE.Vector3();
-    let v1 = new THREE.Vector3();
-    p0.object3D.updateMatrixWorld();
-    p0.object3D.getWorldPosition(v0);
-    p1.object3D.updateMatrixWorld();    
-    p1.object3D.getWorldPosition(v1);
-    let d = v0.distanceTo(v1);
+    let p0 = this.data;
+    let here = new THREE.Vector3();
+    let there = new THREE.Vector3();
+    this.el.object3D.getWorldPosition(here);
+    this.data.object3D.getWorldPosition(there);
+    this.el.object3D.lookAt(there);
+    let p = here.distanceTo(there);
+    this.el.object3D.scale.z = p;
     this.c = (this.c || 0) + 1;
     if (this.c % 100 == 1) {
-      console.log('tick',d, this.el.getAttribute('scale'))
+      console.log('tick',here,there,p);
     }
-    let scale = this.el.getAttribute('scale');
-    scale[this.data.span] = d;
-    this.el.setAttribute('scale', scale);
-//    this.el.setAttribute('position', {x:0,y:0,z:d/2});
   },
 
   /**
