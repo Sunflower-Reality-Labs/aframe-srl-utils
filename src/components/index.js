@@ -4,3 +4,4 @@ require('./fix-aspect-ratio');
 require('./white-room');
 require('./projectors');
 require('./span');
+require('./aviator');
