@@ -36,7 +36,7 @@ AFRAME.registerComponent('srl-span', {
    * Called on each scene tick.
    */
   tick: function (t, delta) {
-    console.log('tick');
+//    console.log('tick');
     let p0 = this.data;
     let here = new THREE.Vector3();
     let there = new THREE.Vector3();
@@ -47,7 +47,7 @@ AFRAME.registerComponent('srl-span', {
     this.el.object3D.scale.z = p;
     this.c = (this.c || 0) + 1;
     if (this.c % 100 == 1) {
-      console.log('tick',here,there,p);
+//      console.log('tick',here,there,p);
     }
   },
 
