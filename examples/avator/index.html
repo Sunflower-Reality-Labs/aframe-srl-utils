@@ -11,13 +11,14 @@
   <body>
     <a-scene srl-white-room>
 
-      
-
       <a-entity id="rig"
 		position="0 0 0"
 		rotation="0 0 0">
 
-	<a-entity	shadow="cast: true" srl-avator="reflection: -0.5">
+	<a-entity
+	  shadow="cast: true"
+	  srl-avator="x-reflection: -0.5; head: #head; neck: #neck; leftShoulder: #left-shoulder;leftElbow: #left-elbow; leftWrist: #left-wrist; rightShoulder: #right-shoulder;rightElbow: #right-elbow; rightWrist: #right-wrist;"
+	  >
 	  <a-box
 	    id="head"
 	    color="blue"
@@ -38,7 +39,7 @@
 	  </a-box>
 	  
 	  <a-box
-	    id="spine"
+	    id="neck"
 	    color="red"
 	    position="0 1.4 -2"
 	    width="0.40"
@@ -62,7 +63,7 @@
 	    position="-0.15 1.4 -2"
 	    radius="0.05"
 	    >
-	    <a-entity srl-span="#spine">
+	    <a-entity srl-span="#neck">
 	      <a-box
 		color="black"
 		rotation="90 0 0"
@@ -118,31 +119,79 @@
 	    </a-entity>
 	  </a-sphere>
 
-      </a-entity>
+	  <a-sphere
+	    id="right-shoulder"
+	    color="red"
+	    position="-0.15 1.4 -2"
+	    radius="0.05"
+	    >
+	    <a-entity srl-span="#neck">
+	      <a-box
+		color="black"
+		rotation="90 0 0"
+		position="0 0 0.5"
+		width="0.02"
+		depth="0.02"
+		>
+	      </a-box>
+	    </a-entity>
+	  </a-sphere>
+
+	  <a-sphere
+	    id="right-elbow"
+	    color="red"
+	    position="-0.3 1.1 -2.1"
+	    radius="0.05"
+	    >
+	    <a-entity srl-span="#right-shoulder">
+	      <a-box
+		color="black"
+		rotation="90 0 0"
+		position="0 0 0.5"
+		width="0.02"
+		depth="0.02"
+		>
+	      </a-box>
+	    </a-entity>
+	  </a-sphere>
+	  
+	  <a-sphere
+	    id="right-wrist"
+	    color="red"
+	    position="-0.3 1.2 -2.5"
+	    radius="0.05"
+	    >
+	    <a-box
+	      position="0 0 0.10"
+	      color="yellow"
+	      width="0.01"
+	      height="0.01"
+	      depth="0.25"
+	      >
+	    </a-box>
+	    <a-entity srl-span="#right-elbow">
+	      <a-box
+		color="black"
+		rotation="90 0 0"
+		position="0 0 0.5"
+		width="0.02"
+		depth="0.02"
+		>
+	      </a-box>
+	    </a-entity>
+	  </a-sphere>
+	  
+	</a-entity>
 	
-	<a-sphere
-	  color="red"
-	  radius="0.1"
-	  wireframe=true
-	  >
 	<a-entity camera
-		  position="0 1.6 0"
-		  wasd-controls 
-		  look-controls="pointerLockEnabled: true"></a-entity>
+		    position="0 1.6 0"
+		    wasd-controls 
+		    look-controls="pointerLockEnabled: true"></a-entity>
 	<a-entity id="left-hand" oculus-touch-controls="hand: left" srl-oculus-touch-locomotion="">
-	</a-sphere>
 	</a-entity>
 	<a-entity id="right-hand" oculus-touch-controls="hand: right" srl-oculus-touch-locomotion="">
 	</a-entity>
       </a-entity>
-
-      <a-sphere
-	id="debug"
-	color="blue"
-	position="0 0 0"
-	radius="0.05"
-	>
-      </a-sphere>
       
     </a-scene>
 
