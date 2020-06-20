@@ -1,7 +1,7 @@
 /**
  * SRL Oculus span a entity between two entities.
  */
-AFRAME.registerComponent('srl-aviator', {
+AFRAME.registerComponent('srl-avator', {
   schema: {
     // Optional locations in the scene
     head: { type: 'selector' },
@@ -13,7 +13,7 @@ AFRAME.registerComponent('srl-aviator', {
     rightElbow: { type: 'selector' },
     rightWrist: { type: 'selector' },
 
-    // Dimensions of aviator
+    // Dimensions of avator
     neckOffset: { type: 'vec3', default: { x: 0, y: -0.1, z: 0.05 }},
     shoulderOffset: { type: 'vec3', default: { x: -0.15, y: -0, z: 0.05 }},
     upperArmLength : { type: 'number', default: 0.35 },
