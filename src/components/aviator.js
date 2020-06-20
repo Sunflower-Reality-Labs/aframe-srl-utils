@@ -3,6 +3,24 @@
  */
 AFRAME.registerComponent('srl-aviator', {
   schema: {
+    // Optional locations in the scene
+    head: { type: 'selector' },
+    neck: { type: 'selector' },
+    leftShoulder: { type: 'selector' },
+    leftElbow: { type: 'selector' },
+    leftWrist: { type: 'selector' },
+    rightShoulder: { type: 'selector' },
+    rightElbow: { type: 'selector' },
+    rightWrist: { type: 'selector' },
+
+    // Dimensions of aviator
+    neckOffset: { type: 'vec3', default: { x: 0, y: -0.1, z: 0.05 }},
+    shoulderOffset: { type: 'vec3', default: { x: -0.15, y: -0, z: 0.05 }},
+    upperArmLength : { type: 'number', default: 0.35 },
+    forearmLength : { type: 'number', default: 0.25 },
+    handLength: { type: 'number', default: 0.10 },
+
+    reflection: { type: 'number', default: null } // reflect on a plane on the z-axis
   },
 
   /**
@@ -34,66 +52,58 @@ AFRAME.registerComponent('srl-aviator', {
    * Called on each scene tick.
    */
   tick: function (t, delta) {
-    let head = document.querySelector('#head');
-    let eyes = document.querySelector('[camera]');
-    let headPos = new THREE.Vector3();
-    let headRot = new THREE.Vector3();
-    let eyesPos = new THREE.Vector3();
-    let eyesRot = new THREE.Vector3();
-    let myRot = new THREE.Vector3();
-    head.object3D.getWorldPosition(headPos);
-    head.object3D.getWorldDirection(headRot);    
-    eyes.object3D.getWorldPosition(eyesPos);
-    eyes.object3D.getWorldDirection(eyesRot);    
-    this.el.object3D.getWorldDirection(myRot);
-    let poseMatrix = new THREE.Matrix4();
+    let reflectPos = (pos) => {
+      let p = pos.clone();
+      if (this.data.reflection) {
+	p.z = -p.z + this.data.reflection;
+      }
+      return p;
+    }
+    let reflectQ = (q) => {
+      if (this.data.reflection) {
+	q = q.clone();
+	q.x = -q.x;
+	q.y = -q.y;
+	return q;
+      } else { 
+	return q;
+      }
+    }
+
     let sceneEl = this.el.sceneEl;
-    let dummy0 = new THREE.Vector3();
-    let dummy1 = new THREE.Vector3();
     let eyesQ = new THREE.Quaternion();
+    let eyesPos = new THREE.Vector3();
+
+    // Default for eyes, if there is no 
+    eyesPos = new THREE.Vector3(0,1.6,0);
+    eyesQ.setFromEuler(new THREE.Euler(0,0,0));
     
     if (sceneEl.hasWebXR) {
       let pose = sceneEl.renderer.xr.getCameraPose();
       if (pose) {
+	let poseMatrix = new THREE.Matrix4();
         poseMatrix.elements = pose.transform.matrix;
-        poseMatrix.decompose(eyesPos, eyesQ, dummy0);
-	// No idea why this does not work instead/
-	// It's like the matrix is blanked out
-        //eyes.object3D.matrix.decompose(eyesPos, eyesQ, dummy0);	
-      } else {
-	eyesPos = new THREE.Vector3(0,1.6,0);
-	eyesQ.setFromEuler(new THREE.Euler(0,0,0));
+        poseMatrix.decompose(eyesPos, eyesQ, {});
       }
     }
-//    eyesQ.x = -eyesQ.x;
-//    eyesQ.y = -eyesQ.y;
-    head.object3D.setRotationFromQuaternion(eyesQ);
 
-    let reflectPos = (pos) => {
-      let p = pos.clone();
-      return p;
-//      p.z = -p.z - 0.5;
-      return p;
-    }
+    let head = document.querySelector('#head');
+    head.object3D.setRotationFromQuaternion(reflectQ(eyesQ));
+    head.object3D.position.copy(reflectPos(eyesPos));
     
-    eyesPos = reflectPos(eyesPos);
-    head.object3D.position.set(eyesPos.x,eyesPos.y, eyesPos.z);
-
-    // Now, figure out where the (top of the) spine is
-    let spine = document.querySelector('#spine')
+    // Now, figure out where the (back of the) neck is
+    let neck = document.querySelector('#spine')
     let neckPos = new THREE.Vector3(0,-0.1,0.05);
     neckPos.applyQuaternion(eyesQ);
     neckPos.add(eyesPos);
-    spine.object3D.position.set(neckPos.x,neckPos.y,neckPos.z);
-    // We do not do rotations (yet)
+    neck.object3D.position.copy(reflectPos(neckPos));
+    // We do not do rotation on neck (yet)
     
     // Now, estimate the location of the shoulder
+    // Need to add rotation of shoulders
     let shoulderPos = new THREE.Vector3(-0.15,0,-0.05);
-    shoulderPos.applyQuaternion(spine.object3D.quaternion);
-    shoulderPos.add(spine.object3D.position);
-    document.querySelector('#left-shoulder').object3D.position.set(shoulderPos.x,shoulderPos.y,shoulderPos.z);
-    
-
+    shoulderPos.add(neckPos);
+    document.querySelector('#left-shoulder').object3D.position.copy(reflectPos(shoulderPos));
     
 //    let shoulderQ = new THREE.Quaternion();
 //    shoulderQ.setFromEuler(new THREE.Euler(0,0,0));
