@@ -65,13 +65,14 @@ AFRAME.registerComponent('srl-aviator', {
 	eyesQ.setFromEuler(new THREE.Euler(0,0,0));
       }
     }
-    eyesQ.x = -eyesQ.x;
-    eyesQ.y = -eyesQ.y;
+//    eyesQ.x = -eyesQ.x;
+//    eyesQ.y = -eyesQ.y;
     head.object3D.setRotationFromQuaternion(eyesQ);
 
     let reflectPos = (pos) => {
       let p = pos.clone();
-      p.z = -p.z - 0.5;
+      return p;
+//      p.z = -p.z - 0.5;
       return p;
     }
     
@@ -79,19 +80,62 @@ AFRAME.registerComponent('srl-aviator', {
     head.object3D.position.set(eyesPos.x,eyesPos.y, eyesPos.z);
 
     // Now, figure out where the (top of the) spine is
-    let spine = document.querySelector('spine')
-    let neckPos = new THREE.Vector3(0,-0.1,-0.05);
+    let spine = document.querySelector('#spine')
+    let neckPos = new THREE.Vector3(0,-0.1,0.05);
     neckPos.applyQuaternion(eyesQ);
     neckPos.add(eyesPos);
-    document.querySelector('#spine').object3D.position.set(neckPos.x,neckPos.y,neckPos.z);    
+    spine.object3D.position.set(neckPos.x,neckPos.y,neckPos.z);
+    // We do not do rotations (yet)
+    
+    // Now, estimate the location of the shoulder
+    let shoulderPos = new THREE.Vector3(-0.15,0,-0.05);
+    shoulderPos.applyQuaternion(spine.object3D.quaternion);
+    shoulderPos.add(spine.object3D.position);
+    document.querySelector('#left-shoulder').object3D.position.set(shoulderPos.x,shoulderPos.y,shoulderPos.z);
+    
+
+    
+//    let shoulderQ = new THREE.Quaternion();
+//    shoulderQ.setFromEuler(new THREE.Euler(0,0,0));
+//    let 
 
     let leftPos = new THREE.Vector3(1,2,3);
     let leftHand = document.querySelector('#left-hand');
 //    poseMatrix.elements = pose.transform.matrix;
     leftPos = leftHand.object3D.position;
     leftPos = reflectPos(leftPos);    
-    document.querySelector('#left-wrist').object3D.position.set(leftPos.x,leftPos.y,leftPos.z);
+    document.querySelector('#left-wrist').object3D.position.copy(leftPos);
     
+    // First, compute the elbow angle
+    let wristToShoulder = leftPos.distanceTo(shoulderPos);
+    let wristToElbow    = 0.35;
+    let elbowToShoulder = 0.35;
+    function cosineRule(a,b,c) {
+      return Math.acos(((b*b)+(c*c)-(a*a))/(2*b*c));
+    }
+    let h = cosineRule(wristToElbow,elbowToShoulder,wristToShoulder);
+    if (isNaN(h)) {
+      h = 0;
+    }
+    // Debugging ball
+//     document.querySelector("#debug").object3D.position.set(0,h,-1);
+
+    // Now compute the y axis angle between the body and the wrist
+    let s2 = new THREE.Vector2(shoulderPos.x,shoulderPos.z);
+    let w2 = new THREE.Vector2(leftPos.x,leftPos.z);
+    let h2 = w2.clone().sub(s2).angle();
+    // Now, the rotation of the wrist from the vertical.
+    let t2 = leftPos.clone();
+    t2.sub(shoulderPos);
+    t2.multiplyScalar(elbowToShoulder/wristToShoulder)
+    t2.applyEuler(new THREE.Euler(0,h2,0));
+    t2.applyEuler(new THREE.Euler(0,0,-h));
+    t2.applyEuler(new THREE.Euler(0,-h2,0));
+    t2.add(shoulderPos);    
+    document.querySelector('#left-elbow').object3D.position.copy(t2);
+    document.querySelector("#debug").object3D.position.set(0,h2,-1);
+    
+
     //    eyesPos = new THREE.Vector3(1,2,3);
 //    eyesPos.z = eyesPos.z - 1.0
 

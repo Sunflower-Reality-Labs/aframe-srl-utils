@@ -26,15 +26,35 @@
 	    height="0.15"
 	    depth="0.1"
 	    >
+	    <a-box
+	      position="0 0 0.10"
+	      color="yellow"
+	      width="0.01"
+	      height="0.01"
+	      depth="0.25"
+	      >
+	    </a-box>
+	    
 	  </a-box>
 	  
-	  <a-sphere
+	  <a-box
 	    id="spine"
 	    color="red"
 	    position="0 1.4 -2"
-	    radius="0.05"
+	    width="0.40"
+	    height="0.03"
+	    depth="0.03"
 	    >
-	  </a-sphere>
+	    <a-box
+	      position="0 0 0.10"
+	      color="yellow"
+	      width="0.01"
+	      height="0.01"
+	      depth="0.25"
+	      >
+	    </a-box>
+	      
+	  </a-box>
 	  
 	  <a-sphere
 	    id="left-shoulder"
@@ -53,7 +73,7 @@
 	      </a-box>
 	    </a-entity>
 	  </a-sphere>
-	  
+
 	  <a-sphere
 	    id="left-elbow"
 	    color="red"
@@ -78,6 +98,14 @@
 	    position="-0.3 1.2 -2.5"
 	    radius="0.05"
 	    >
+	    <a-box
+	      position="0 0 0.10"
+	      color="yellow"
+	      width="0.01"
+	      height="0.01"
+	      depth="0.25"
+	      >
+	    </a-box>
 	    <a-entity srl-span="#left-elbow">
 	      <a-box
 		color="black"
@@ -91,7 +119,6 @@
 	  </a-sphere>
 
       </a-entity>
-
 	
 	<a-sphere
 	  color="red"
@@ -108,6 +135,15 @@
 	<a-entity id="right-hand" oculus-touch-controls="hand: right" srl-oculus-touch-locomotion="">
 	</a-entity>
       </a-entity>
+
+      <a-sphere
+	id="debug"
+	color="blue"
+	position="0 0 0"
+	radius="0.05"
+	>
+      </a-sphere>
+      
     </a-scene>
 
     <!-- GitHub Corner. -->
