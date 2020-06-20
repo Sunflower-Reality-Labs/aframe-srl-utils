@@ -19,7 +19,7 @@ AFRAME.registerComponent('srl-avator', {
     neckOffset: { type: 'vec3', default: { x: 0, y: -0.1, z: 0.05 }},
     shoulderOffset: { type: 'vec3', default: { x: -0.15, y: -0, z: 0.05 }},
     upperArmLength : { type: 'number', default: 0.30 },
-    forearmLength : { type: 'number', default: 0.25 },
+    forearmLength : { type: 'number', default: 0.35 },
     handLength: { type: 'number', default: 0.10 },
 
     reflection: { type: 'number', default: null } // reflect on a plane on the z-axis
@@ -114,13 +114,18 @@ AFRAME.registerComponent('srl-avator', {
       let shoulderPos = new THREE.Vector3(reflectX * 0.15,-0.10,-0.05);
       shoulderPos.add(neckPos);
       shoulder && shoulder.object3D.position.copy(reflectPos(shoulderPos));
-      
+
       let handPos = hand.object3D.position;
-      wrist && wrist.object3D.position.copy(reflectPos(handPos));
+      let handQ = hand.object3D.quaternion;
+      let wristPos = new THREE.Vector3(0,-0.7,0.7);
+      wristPos.multiplyScalar(this.data.handLength);
+      wristPos.applyQuaternion(handQ);
+      wristPos.add(handPos);
+      wrist && wrist.object3D.position.copy(reflectPos(wristPos));
       
       // First, compute the elbow angle
-      let wristToShoulder = handPos.distanceTo(shoulderPos);
-      let wristToElbow    = this.data.forearmLength + this.data.handLength;
+      let wristToShoulder = wristPos.distanceTo(shoulderPos);
+      let wristToElbow    = this.data.forearmLength;
       let elbowToShoulder = this.data.upperArmLength;
       const cosineRule = (a,b,c) => {
 	return Math.acos(((b*b)+(c*c)-(a*a))/(2*b*c)) || 0;
@@ -129,10 +134,10 @@ AFRAME.registerComponent('srl-avator', {
       
       // Now compute the y axis angle between the body and the wrist
       let s2 = new THREE.Vector2(shoulderPos.x,shoulderPos.z);
-      let w2 = new THREE.Vector2(handPos.x,handPos.z);
+      let w2 = new THREE.Vector2(wristPos.x,wristPos.z);
       let h2 = w2.clone().sub(s2).angle();
       // Now, the rotation of the wrist from the vertical.
-      let t2 = handPos.clone();
+      let t2 = wristPos.clone();
       t2.sub(shoulderPos);
       t2.multiplyScalar(elbowToShoulder/wristToShoulder)
       t2.applyEuler(new THREE.Euler(0,h2,0));
