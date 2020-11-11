@@ -83,39 +83,39 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     if (this.axismove) {
       let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
       if (mv.length() > 0) {
-	let step = delta * this.data.walking; // how fast you move
-	if (this.thumbstickpress) {
-	  step = delta * this.data.running;
-	}
-	let origin = new THREE.Vector2();
-	mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
-	mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
-	rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+      let step = delta * this.data.walking; // how fast you move
+      if (this.thumbstickpress) {
+        step = delta * this.data.running;
+      }
+      let origin = new THREE.Vector2();
+      mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
+      mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
+      rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
       }
     }
     if (this.upbuttonpress) {
       let y = this.data.stretching*delta*0.001;
       if (this.grippress) {
-	y *= 0.2;
+      	y *= 0.2;
       }
       rig.object3D.position.add({x:0,y:y,z:0});
     }
     if (this.downbuttonpress) {
       let y = this.data.stretching*delta*0.001;
       if (this.grippress) {
-	y *= 0.2;
+      	y *= 0.2;
       }
       rig.object3D.position.add({x:0,y:-y,z:0});
     }
     let vis = this.elSphere.getAttribute("material").visible;
     if (this.triggerpress) {
       if (!vis) {      
-	this.elSphere.setAttribute("material","visible",true);
+      	this.elSphere.setAttribute("material","visible",true);
       }
       rig.object3D.rotateY((this.direction - (controlO.yaw+rigO.yaw)));
     } else {
       if (vis) {      
-	this.elSphere.setAttribute("material","visible",false);
+      	this.elSphere.setAttribute("material","visible",false);
       }
     }
   },
