@@ -9,7 +9,41 @@
     <script src="https://unpkg.com/aframe-environment-component@1.0.0/dist/aframe-environment-component.min.js"></script>
   </head>
   <body>
-    <a-scene environment="preset: forest">
+    <a-scene fog="type: linear; density: 0.15; near: 10; far: 30; color: #EEE" background="color: #EEE">      
+      <a-assets>
+	<img id="jayhawk" src="../assets/jawhawk.png">
+      </a-assets>
+
+      <a-entity geometry="primitive: plane; width:50; height:50" position="0 0 0" rotation="-90 0 0" material="color: #EEE" shadow="receive: true">
+      </a-entity>
+
+      <a-sphere color="red" position="2 1 -2" shadow="cast: true">
+      </a-sphere>
+      <a-sphere color="blue" position="-1 1 -2" shadow="cast: true">
+      </a-sphere>
+      <a-sphere color="green" position="4.5 1 -2" shadow="cast: true" rotation="90 90 90">
+      </a-sphere>
+      
+      <a-sphere color="red" position="-9 1 -9" shadow="cast: true">
+      </a-sphere>
+
+
+      <a-entity light="type:directional; color: #fff; intensity: 0.7; castShadow:true;  shadowCameraRight: 10; shadowCameraLeft: -10; shadowCameraTop: 10; shadowCameraBottom: -10" position="0 10 1">
+      </a-entity>      
+      <a-entity light="type: ambient; color: #555">
+      </a-entity>
+      
+
+      <a-image src="#jayhawk"
+	       position="1 1 -4"
+	       height="4.6"
+	       shadow="cast: true"
+	       srl-fix-aspect-ratio
+	       >
+      </a-image>
+      
+    
+      
       <a-entity id="rig"
 		position="0 0 0"
 		rotation="0 0 0">
