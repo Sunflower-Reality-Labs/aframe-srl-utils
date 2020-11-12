@@ -39,18 +39,23 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
     this.elSphere = document.createElement('a-entity');
     this.elSphere.setAttribute("geometry",
-			       {primitive: "sphere", radius: 0.02,
-//				phiLength: 90,
+      {primitive: "sphere", 
+      radius: 0.1,
+//      radiusTubular: 0.02,
+      //				phiLength: 90,
 //				phiStart: 225,
 //				thetaStart: 65,
 //				thetaLength: 50,
-				segmentsHeight: 8,
-				segmentsWidth: 8				
+//        segmentsRadial: 8,
+//        segmentsTubular: 8,
+				segmentsHeight: 16,
+				segmentsWidth: 16				
 			       });      
     this.elSphere.setAttribute("material",
-			       {color: "red", wireframe: true, visible: true});
-    this.elSphere.setAttribute("position",{x:0,y:0,z:-2});
+			       {color: "red", wireframe: false, visible: true});
+    this.elSphere.setAttribute("position",{x:0,y:0,z:0});
     el.appendChild(this.elSphere);
+    this.count = 0;
   },
 
   /**
@@ -80,17 +85,18 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
     let updown = false;
 
+    // if moving the thumbstick (axis move)...
     if (this.axismove) {
       let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
       if (mv.length() > 0) {
-      let step = delta * this.data.walking; // how fast you move
-      if (this.thumbstickpress) {
-        step = delta * this.data.running;
-      }
-      let origin = new THREE.Vector2();
-      mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
-      mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
-      rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+        let step = delta * this.data.walking; // how fast you move
+        if (this.thumbstickpress) {
+          step = delta * this.data.running;
+        }
+        let origin = new THREE.Vector2();
+        mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
+        mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
+        rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
       }
     }
     if (this.upbuttonpress) {
@@ -108,15 +114,43 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       rig.object3D.position.add({x:0,y:-y,z:0});
     }
     let vis = this.elSphere.getAttribute("material").visible;
-    if (this.triggerpress) {
+    if (this.triggerpress || this.grippress) {
       if (!vis) {      
-      	this.elSphere.setAttribute("material","visible",true);
+        this.elSphere.setAttribute("material","visible",true);
+        this.count++;
       }
-      rig.object3D.rotateY((this.direction - (controlO.yaw+rigO.yaw)));
+      this.count = 6;
+//      const a = (this.count % 3) -1;
+//      const b = ((this.count/3) % 3) -1;
+      const a = -1;
+      const b = 1;
+      const q = new THREE.Quaternion();
+      this.el.object3D.getWorldQuaternion(q);
+      // The sphere is fixed in the world
+      this.elSphere.object3D.setRotationFromQuaternion(q.conjugate());
+
+//      this.tocky = (this.direction - (controlO.yaw+rigO.yaw));
+      const pos = this.position.clone().sub(this.el.object3D.position);
+      const x = pos.x;
+      const y = pos.y;
+      const z = pos.z;
+      rig.object3D.position.set(x,y,z);
+//      const rot = this.rotation.clone().multiply(
+//      const rot = this.el.object3D.quaternion.clone().multiply(this.rotation.clone().conjugate())
+//      rig.object3D.quaternion.copy(rot.conjugate());
+  //        rotateY((this.direction - (controlO.yaw+rigO.yaw)));
     } else {
       if (vis) {      
       	this.elSphere.setAttribute("material","visible",false);
       }
+    }
+  },
+
+  tock:  function () {
+    const rig = document.getElementById('rig');
+    if (this.tocky) {
+      rig.object3D.rotateY(this.tocky);
+      this.tocky = null;
     }
   },
 
@@ -203,8 +237,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.triggerpress = true;
       let rig = document.getElementById('rig');      
       this.direction =
-	toolOrientation(this.el.object3D.rotation).yaw +
-	toolOrientation(rig.object3D.rotation).yaw;
+        toolOrientation(this.el.object3D.rotation).yaw +
+        toolOrientation(rig.object3D.rotation).yaw;
+      this.rockDirection =
+        toolOrientation(this.el.object3D.rotation).yaw;
+      this.position = this.el.object3D.getWorldPosition();
+      this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
     },
     triggerup: function (evt) {
       this.triggerpress = false;
@@ -217,6 +255,15 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     gripdown: function (evt) {
       this.grippress = true;
+      let rig = document.getElementById('rig');      
+      this.direction =
+        toolOrientation(this.el.object3D.rotation).yaw +
+        toolOrientation(rig.object3D.rotation).yaw;
+      this.rockDirection =
+        toolOrientation(this.el.object3D.rotation).yaw;
+      this.position = this.el.object3D.getWorldPosition();
+      this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
+
     },
     gripup: function (evt) {
       this.grippress = false;
