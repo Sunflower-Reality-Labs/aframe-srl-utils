@@ -55,7 +55,6 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 			       {color: "red", wireframe: false, visible: true});
     this.elSphere.setAttribute("position",{x:0,y:0,z:0});
     el.appendChild(this.elSphere);
-    this.count = 0;
   },
 
   /**
@@ -114,43 +113,28 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       rig.object3D.position.add({x:0,y:-y,z:0});
     }
     let vis = this.elSphere.getAttribute("material").visible;
-    if (this.triggerpress || this.grippress) {
+
+    if (this.triggerpress) {
       if (!vis) {      
         this.elSphere.setAttribute("material","visible",true);
-        this.count++;
       }
-      this.count = 6;
-//      const a = (this.count % 3) -1;
-//      const b = ((this.count/3) % 3) -1;
-      const a = -1;
-      const b = 1;
       const q = new THREE.Quaternion();
       this.el.object3D.getWorldQuaternion(q);
       // The sphere is fixed in the world
       this.elSphere.object3D.setRotationFromQuaternion(q.conjugate());
 
 //      this.tocky = (this.direction - (controlO.yaw+rigO.yaw));
-      const pos = this.position.clone().sub(this.el.object3D.position);
+      const posFromRig = this.el.object3D.position.clone();
+      posFromRig.applyQuaternion(rig.object3D.quaternion);
+      const pos = this.position.clone().sub(posFromRig);
       const x = pos.x;
       const y = pos.y;
       const z = pos.z;
-      rig.object3D.position.set(x,y,z);
-//      const rot = this.rotation.clone().multiply(
-//      const rot = this.el.object3D.quaternion.clone().multiply(this.rotation.clone().conjugate())
-//      rig.object3D.quaternion.copy(rot.conjugate());
-  //        rotateY((this.direction - (controlO.yaw+rigO.yaw)));
+      rig.object3D.position.copy(pos);
     } else {
       if (vis) {      
       	this.elSphere.setAttribute("material","visible",false);
       }
-    }
-  },
-
-  tock:  function () {
-    const rig = document.getElementById('rig');
-    if (this.tocky) {
-      rig.object3D.rotateY(this.tocky);
-      this.tocky = null;
     }
   },
 
