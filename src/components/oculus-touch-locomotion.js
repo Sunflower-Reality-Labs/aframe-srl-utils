@@ -39,7 +39,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
     this.elSphere = document.createElement('a-entity');
     this.elSphere.setAttribute("geometry",
-      {primitive: "sphere", 
+      {primitive: "dodecahedron", 
       radius: 0.1,
 //      radiusTubular: 0.02,
       //				phiLength: 90,
@@ -52,7 +52,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 				segmentsWidth: 16				
 			       });      
     this.elSphere.setAttribute("material",
-			       {color: "red", wireframe: false, visible: true});
+			       {color: "black", wireframe: true, visible: true});
     this.elSphere.setAttribute("position",{x:0,y:0,z:0});
     el.appendChild(this.elSphere);
   },
@@ -93,9 +93,13 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
           step = delta * this.data.running;
         }
         let origin = new THREE.Vector2();
-        mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
-        mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
-        rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+        if (this.triggerpress) {
+          rig.object3D.rotateY(this.axismove.x * 0.02);
+        } else {
+          mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
+          mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
+          rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+        }
       }
     }
     if (this.upbuttonpress) {
