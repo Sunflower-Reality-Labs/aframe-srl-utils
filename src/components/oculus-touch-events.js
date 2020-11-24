@@ -1,7 +1,7 @@
 /**
  * SRL Oculus Touch debuging component for A-Frame.
  */
-AFRAME.registerComponent('srl-oculus-touch-log', {
+AFRAME.registerComponent('srl-oculus-touch-events', {
   schema: {},
 
   /**
@@ -14,6 +14,8 @@ AFRAME.registerComponent('srl-oculus-touch-log', {
    */
   init: function () { 
     var el = this.el;
+
+    console.log("init events")
     
     this.elBack = document.createElement('a-entity');
     this.elBack.setAttribute("geometry",{primitive: "plane", height: 1.4, width: 0.75});
