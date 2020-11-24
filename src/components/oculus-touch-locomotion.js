@@ -31,6 +31,8 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.triggertouch      = false;    
     this.triggerpress      = false;    
 
+    this.otherhand         = null;
+
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
     this.height = 0;
