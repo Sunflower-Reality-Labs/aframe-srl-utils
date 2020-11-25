@@ -163,12 +163,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.elSphere.object3D.setRotationFromQuaternion(q.conjugate());
 
       const pos = this.el.object3D.position.clone();
-      pos.sub(this.grabbed.position2);
+      pos.sub(this.grabbed.position);
       pos.negate();
       pos.applyQuaternion(rig.object3D.quaternion);
       rig.object3D.position.add(pos);
 
-      this.grabbed.position2 = this.el.object3D.position.clone();
+      this.grabbed.position = this.el.object3D.position.clone();
 
     } else {
       const vis = this.elSphere.getAttribute("material").visible;      
@@ -231,8 +231,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       }
       this.braced = false;
       // You grab a position in world space
-      this.grabbed = { position: this.el.object3D.getWorldPosition(),
-                       position2: this.el.object3D.position.clone(),
+      this.grabbed = { position: this.el.object3D.position.clone(),
                      };
   },
   // attempt to let go something
