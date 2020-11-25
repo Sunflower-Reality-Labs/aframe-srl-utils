@@ -30,12 +30,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.downbuttonpress   = false;
     this.triggertouch      = false;    
 
-    this.grabbed           = false; 
-    this.braced            = false; // second hand also grabbed
+    this.grabbed           = null; 
     this.otherHand         = null;   
     
-    this.newRigPos         = null;
-
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
     this.height = 0;
@@ -163,12 +160,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.elSphere.object3D.setRotationFromQuaternion(q.conjugate());
 
       const pos = this.el.object3D.position.clone();
-      pos.sub(this.grabbed.position);
+      pos.sub(this.grabbed);
       pos.negate();
       pos.applyQuaternion(rig.object3D.quaternion);
       rig.object3D.position.add(pos);
 
-      this.grabbed.position = this.el.object3D.position.clone();
+      this.grabbed = this.el.object3D.position.clone();
 
     } else {
       const vis = this.elSphere.getAttribute("material").visible;      
@@ -186,10 +183,6 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
   },
 
   tock: function () {
-    this.newRigPos         = null;
-    if (this.grabbed) {
-//      this.grabbed.position2 = this.el.object3D.position.clone();
-    }
   },
 
   /**
@@ -223,25 +216,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
   // attempt to grab something
   grab: function () {
-      // can not grab the other hand is already grabbed.
-      // You brace instead.
-      if (false && this.otherHand && this.otherHand.grabbed) {
-        this.braced = true;
-        return;
-      }
-      this.braced = false;
-      // You grab a position in world space
-      this.grabbed = { position: this.el.object3D.position.clone(),
-                     };
+    // You grab a position
+    this.grabbed = this.el.object3D.position.clone();
   },
   // attempt to let go something
   letGo: function () {
-    this.grabbed = false;
-    this.braced = false;
-    if (this.otherHand && this.otherHand.braced) {
-      // upgrade the other hand to grabbed.
-      this.otherHand.grab();
-    }
+    this.grabbed = null;
   },
 
 
