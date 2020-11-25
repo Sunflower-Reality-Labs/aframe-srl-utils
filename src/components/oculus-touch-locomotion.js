@@ -8,7 +8,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     // How fast do you move when running, in m/s    
     running: {type: 'number', default: 10 },
     // How fast do you move when streching, in m/s    
-    stretching: {type: 'number', default: 1 }
+    stretching: {type: 'number', default: 1 },
   },
 
   /**
@@ -30,9 +30,11 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.downbuttonpress   = false;
     this.triggertouch      = false;    
 
-    this.grabbed           = false; // first hand grabbed
+    this.grabbed           = false; 
     this.braced            = false; // second hand also grabbed
-    this.otherHand         = null;    
+    this.otherHand         = null;   
+    
+    this.newRigPos         = null;
 
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
@@ -160,11 +162,14 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       // The sphere is fixed in the world
       this.elSphere.object3D.setRotationFromQuaternion(q.conjugate());
 
-//      this.tocky = (this.direction - (controlO.yaw+rigO.yaw));
-      const posFromRig = this.el.object3D.position.clone();
-      posFromRig.applyQuaternion(rig.object3D.quaternion);
-      const pos = this.grabbed.position.clone().sub(posFromRig);
-      rig.object3D.position.copy(pos);
+      const pos = this.el.object3D.position.clone();
+      pos.sub(this.grabbed.position2);
+      pos.negate();
+      pos.applyQuaternion(rig.object3D.quaternion);
+      rig.object3D.position.add(pos);
+
+      this.grabbed.position2 = this.el.object3D.position.clone();
+
     } else {
       const vis = this.elSphere.getAttribute("material").visible;      
       if (vis) {      
@@ -178,6 +183,13 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     	this.elBox.setAttribute("material","visible",false);
     }
 
+  },
+
+  tock: function () {
+    this.newRigPos         = null;
+    if (this.grabbed) {
+//      this.grabbed.position2 = this.el.object3D.position.clone();
+    }
   },
 
   /**
@@ -208,6 +220,31 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       }
     }
   },
+
+  // attempt to grab something
+  grab: function () {
+      // can not grab the other hand is already grabbed.
+      // You brace instead.
+      if (false && this.otherHand && this.otherHand.grabbed) {
+        this.braced = true;
+        return;
+      }
+      this.braced = false;
+      // You grab a position in world space
+      this.grabbed = { position: this.el.object3D.getWorldPosition(),
+                       position2: this.el.object3D.position.clone(),
+                     };
+  },
+  // attempt to let go something
+  letGo: function () {
+    this.grabbed = false;
+    this.braced = false;
+    if (this.otherHand && this.otherHand.braced) {
+      // upgrade the other hand to grabbed.
+      this.otherHand.grab();
+    }
+  },
+
 
   /**
    * Event handlers that automatically get attached or detached based on scene state.
@@ -280,12 +317,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.downbuttonpress = false;
     },
     triggerdown: function (evt) {
-      if (this.otherHand && this.otherHand.grabbed) {
-        this.braced = true;
-        return;
-      }
-      // You grab a position in world space
-      this.grabbed = { position: this.el.object3D.getWorldPosition() };
+      this.grab();
 /*      
       let rig = document.getElementById('rig');      
       this.direction =
@@ -298,8 +330,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 */
     },
     triggerup: function (evt) {
-      this.grabbed = false;
-      this.braced = false;
+      this.letGo();
     },
     triggertouchstart: function (evt) {
       this.triggertouch = true;
