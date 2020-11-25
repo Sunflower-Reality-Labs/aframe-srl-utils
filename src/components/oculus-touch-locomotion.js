@@ -34,8 +34,6 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.otherHand         = null;   
 
     this.index             = [...el.parentNode.children].indexOf(el);
-
-    AFRAME.log("index: " + this.index)
     
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
@@ -168,10 +166,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       pos.negate();
       pos.applyQuaternion(rig.object3D.quaternion);
       if (this.otherHand && this.otherHand.grabbed) {
-        // Use half the force on each point.
-        pos.divideScalar(2);
+        // Use half the force on each point,
+        // and only in y direction. (x and y are handled by rotations)
+         rig.object3D.position.add({x:0, y: pos.y / 2, z: 0});
+      } else {
+        rig.object3D.position.add(pos);
       }
-      rig.object3D.position.add(pos);
       this.moment = new THREE.Vector2(pos.x,pos.z);
     
       // We reset this each time, and work with delta's,
@@ -182,34 +182,41 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         // Both hands are moving, so find the angle (in 2D)
         // and the rotation point (in 2D)
         // and move the rig.
-        AFRAME.log("index : " + this.index);
         const p1_3 = this.el.object3D.position.clone();
         const p1 = new THREE.Vector2(p1_3.x,p1_3.z);
         const p2_3 = this.otherHand.el.object3D.position.clone();
         const p2 = new THREE.Vector2(p2_3.x,p2_3.z);
         p2.sub(p1);
         const dist = p2.length();
-        AFRAME.log("distance: " + dist)
         const r0 = p2.angle() - rigO.yaw;
-        AFRAME.log("r0: " + r0);
         const m1 = this.moment.clone().multiplyScalar(1);
         m1.rotateAround(new THREE.Vector2(0,0), -r0);
-        AFRAME.log("m1.x: " + m1.x);
-        AFRAME.log("m1.y: " + m1.y);
         const a1 = Math.atan(m1.y/dist);
-        AFRAME.log("a1: " + a1 * 1000);
         const m2 = this.otherHand.moment.clone().multiplyScalar(1);
         m2.rotateAround(new THREE.Vector2(0,0), -r0);
         const a2 = Math.atan(m2.y/dist);
-        AFRAME.log("a2: " + a2 * 1000);
-        const a = (a1 - a2);
-        AFRAME.log("a: " + a * 1000);
-        document.querySelector('#cube').object3D.rotateY(-a);
-//        const mv = new THREE.Vector2(rig.object3D.position.x, rig.object3D.position.z);  
-//        mv.rotateAround(this.origin,a);
-        rig.object3D.rotateY(a * 2);
+        let a = (a1 - a2);
+        // limit a if the distance is small
+        if (dist < 0.1 && Math.abs(a) > 0.1) {
+          a = Math.max(-0.1,Math.min(0.1,a))
+        }
 
-//        rig.object3D.position.copy({x:mv.x,y:rig.object3D.position.y,z:mv.y});
+        rig.object3D.rotateY(a);
+
+        // Now we figure out the relationship between the rig, and the center of the points.
+        const ratio = - a2 / a;
+        if (isFinite(ratio)) {
+          const centerPoint = p2_3.clone();
+          centerPoint.lerp(p1_3, ratio);
+//          document.querySelector('#cube').object3D.position.copy(centerPoint);
+
+          const centerPoint2 = new THREE.Vector2(centerPoint.x, centerPoint.z);
+          const mv = new THREE.Vector2(0,0); 
+          mv.rotateAround(centerPoint2,-a);
+          mv.rotateAround(this.origin,-rigO.yaw);
+          rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
+        }
+
       }
 
 
