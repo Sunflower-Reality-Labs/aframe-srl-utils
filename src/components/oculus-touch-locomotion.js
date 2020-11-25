@@ -169,6 +169,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
     if (!this.otherHand) {
       const rig = document.getElementById('rig');
+      // We assume that the hands are children of the rig
       this.otherHand = Array
       .from(rig.children)
       .filter(i => i.components).map(i => i.components)
