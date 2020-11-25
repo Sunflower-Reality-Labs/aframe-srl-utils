@@ -7,6 +7,7 @@
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="../../aframe-srl-utils.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.0.0/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-log-component/dist/aframe-log-component.min.js"></script>
   </head>
   <body>
     <a-scene fog="type: linear; density: 0.15; near: 10; far: 30; color: #EEE" background="color: #EEE">      
@@ -15,6 +16,10 @@
       </a-assets>
 
       <a-entity geometry="primitive: plane; width:50; height:50" position="0 0 0" rotation="-90 0 0" material="color: #EEE" shadow="receive: true">
+      </a-entity>
+
+      <a-entity position="0 1 -1">
+        <a-entity log="max: 10" geometry="primitive: plane"></a-entity>
       </a-entity>
 
       <a-sphere color="red" position="2 1 -2" shadow="cast: true">

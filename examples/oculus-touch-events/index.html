@@ -11,16 +11,17 @@
   <body>
     <a-scene environment="preset: forest">
       <a-entity id="rig"
-		position="0 0 0"
-		rotation="0 0 0">
-	<a-entity camera
-		  position="0 1.6 0"
-		  wasd-controls 
-		  look-controls="pointerLockEnabled: true"></a-entity>
-	<a-entity oculus-touch-controls="hand: left" srl-oculus-touch-log="">
-	</a-entity>
-	<a-entity oculus-touch-controls="hand: right" srl-oculus-touch-log="">
-	</a-entity>
+        position="0 0 0"
+        rotation="0 0 0">
+        <a-entity camera
+            position="0 1.6 0"
+            wasd-controls 
+            look-controls="pointerLockEnabled: true"></a-entity>
+        <a-entity oculus-touch-controls="hand: left" srl-oculus-touch-events="">
+          <a-sphere color="red"  radius="0.1"/>
+        </a-entity>
+        <a-entity oculus-touch-controls="hand: right" srl-oculus-touch-events="">
+        </a-entity>
       </a-entity>
     </a-scene>
 
