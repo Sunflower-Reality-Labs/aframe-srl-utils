@@ -29,10 +29,10 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.upbuttonpress     = false;
     this.downbuttonpress   = false;
     this.triggertouch      = false;    
-    this.grabbed      = false;
-    this.otherHand         = null;    
 
-    this.otherhand         = null;
+    this.grabbed           = false; // first hand grabbed
+    this.braced            = false; // second hand also grabbed
+    this.otherHand         = null;    
 
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
@@ -58,7 +58,28 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 			       {color: "black", wireframe: true, visible: true});
     this.elSphere.setAttribute("position",{x:0,y:0,z:0});
     el.appendChild(this.elSphere);
+
+    this.elBox = document.createElement('a-entity');
+    this.elBox.setAttribute("geometry",
+      {primitive: "octahedron", 
+      radius: 0.1,
+//      radiusTubular: 0.02,
+      //				phiLength: 90,
+//				phiStart: 225,
+//				thetaStart: 65,
+//				thetaLength: 50,
+//        segmentsRadial: 8,
+//        segmentsTubular: 8,
+				segmentsHeight: 16,
+				segmentsWidth: 16				
+			       });      
+    this.elBox.setAttribute("material",
+			       {color: "red", wireframe: true, visible: true});
+    this.elBox.setAttribute("position",{x:0,y:0,z:0});
+    el.appendChild(this.elBox);
+
   },
+
 
   /**
    * Called when component is attached and when component data changes.
@@ -126,9 +147,11 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       }
       rig.object3D.position.add({x:0,y:-y,z:0});
     }
-    let vis = this.elSphere.getAttribute("material").visible;
+    
 
     if (this.grabbed) {
+      const vis = this.elSphere.getAttribute("material").visible;      
+
       if (!vis) {      
         this.elSphere.setAttribute("material","visible",true);
       }
@@ -146,10 +169,18 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       const z = pos.z;
       rig.object3D.position.copy(pos);
     } else {
+      const vis = this.elSphere.getAttribute("material").visible;      
       if (vis) {      
       	this.elSphere.setAttribute("material","visible",false);
       }
     }
+
+    if (this.braced) {
+    	this.elBox.setAttribute("material","visible",true);
+    } else {
+    	this.elBox.setAttribute("material","visible",false);
+    }
+
   },
 
   /**
@@ -253,6 +284,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     triggerdown: function (evt) {
       if (this.otherHand && this.otherHand.grabbed) {
+        this.braced = true;
         return;
       }
       this.grabbed = true;
@@ -267,6 +299,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     triggerup: function (evt) {
       this.grabbed = false;
+      this.braced = false;
     },
     triggertouchstart: function (evt) {
       this.triggertouch = true;
