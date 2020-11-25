@@ -28,6 +28,8 @@
       </a-sphere>
       <a-sphere color="green" position="4.5 1 -2" shadow="cast: true" rotation="90 90 90">
       </a-sphere>
+
+      <a-box color="orange" position="0 -0.2 -1" id="cube"></a-box>
       
       <a-sphere color="red" position="-9 1 -9" shadow="cast: true">
       </a-sphere>
@@ -50,15 +52,15 @@
     
       <a-entity id="rig"
         position="0 0 0"
-        rotation="0 0 0">
+        rotation="0 90 0">
         <a-entity camera
             position="0 1.6 0"
             wasd-controls 
             look-controls="pointerLockEnabled: true">
           </a-entity>
-        <a-entity oculus-touch-controls="hand: left" srl-oculus-touch-locomotion>
+        <a-entity oculus-touch-controls="hand: left" srl-oculus-touch-locomotion id="left">
         </a-entity>
-        <a-entity oculus-touch-controls="hand: right" srl-oculus-touch-locomotion>
+        <a-entity oculus-touch-controls="hand: right" srl-oculus-touch-locomotion id="right">
         </a-entity>
       </a-entity>
     </a-scene>
