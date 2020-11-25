@@ -29,7 +29,8 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.upbuttonpress     = false;
     this.downbuttonpress   = false;
     this.triggertouch      = false;    
-    this.triggerpress      = false;    
+    this.grabbed      = false;
+    this.otherHand         = null;    
 
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
@@ -73,12 +74,19 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
    * Called on each scene tick.
    */
   tick: function (t, delta) {
+
     let el = this.el;
     let rig = document.getElementById('rig');
 
     let controlO = toolOrientation(this.el.object3D.rotation);
     let rigO     = toolOrientation(rig.object3D.rotation);
 
+
+    if (!this.otherHandLog && this.otherHandLog !== this.otherHand) {
+      console.log("otherHand",this.otherHand);
+      this.otherHandLog = this.otherHand;
+    }
+      
     let wp = new THREE.Vector3();
     el.object3D.getWorldPosition(wp);
 
@@ -93,7 +101,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
           step = delta * this.data.running;
         }
         let origin = new THREE.Vector2();
-        if (this.triggerpress) {
+        if (this.grabbed) {
           rig.object3D.rotateY(this.axismove.x * 0.02);
         } else {
           mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
@@ -118,7 +126,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     }
     let vis = this.elSphere.getAttribute("material").visible;
 
-    if (this.triggerpress) {
+    if (this.grabbed) {
       if (!vis) {      
         this.elSphere.setAttribute("material","visible",true);
       }
@@ -154,10 +162,29 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
    */
   play: function () { },
 
+  // Try initialize the link to the other hand
+  talkToTheHand: function () {
+
+    if (!this.otherHand) {
+      const rig = document.getElementById('rig');
+      this.otherHand = Array
+      .from(rig.children)
+      .filter(i => i.components).map(i => i.components)
+      .filter(i => i[this.name]).map(i => i[this.name])
+      .filter(i => i !== this)[0]
+      if (!this.otherHand) {
+        this.otherHand = null;
+      }
+    }
+  },
+
   /**
    * Event handlers that automatically get attached or detached based on scene state.
    */
   events: {
+    controllerconnected: function () {
+      this.talkToTheHand();
+    },
     axismove: function (evt) {
       this.axismove = {x: evt.detail.axis[2], y: evt.detail.axis[3] };
     },
@@ -222,7 +249,10 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.downbuttonpress = false;
     },
     triggerdown: function (evt) {
-      this.triggerpress = true;
+      if (this.otherHand && this.otherHand.grabbed) {
+        return;
+      }
+      this.grabbed = true;
       let rig = document.getElementById('rig');      
       this.direction =
         toolOrientation(this.el.object3D.rotation).yaw +
@@ -233,7 +263,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
     },
     triggerup: function (evt) {
-      this.triggerpress = false;
+      this.grabbed = false;
     },
     triggertouchstart: function (evt) {
       this.triggertouch = true;
