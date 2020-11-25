@@ -163,10 +163,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 //      this.tocky = (this.direction - (controlO.yaw+rigO.yaw));
       const posFromRig = this.el.object3D.position.clone();
       posFromRig.applyQuaternion(rig.object3D.quaternion);
-      const pos = this.position.clone().sub(posFromRig);
-      const x = pos.x;
-      const y = pos.y;
-      const z = pos.z;
+      const pos = this.grabbed.position.clone().sub(posFromRig);
       rig.object3D.position.copy(pos);
     } else {
       const vis = this.elSphere.getAttribute("material").visible;      
@@ -287,7 +284,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         this.braced = true;
         return;
       }
-      this.grabbed = true;
+      // You grab a position in world space
+      this.grabbed = { position: this.el.object3D.getWorldPosition() };
+/*      
       let rig = document.getElementById('rig');      
       this.direction =
         toolOrientation(this.el.object3D.rotation).yaw +
@@ -296,6 +295,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         toolOrientation(this.el.object3D.rotation).yaw;
       this.position = this.el.object3D.getWorldPosition();
       this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
+*/
     },
     triggerup: function (evt) {
       this.grabbed = false;
@@ -308,6 +308,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       this.triggertouch = false;
     },
     gripdown: function (evt) {
+/*      
       this.grippress = true;
       let rig = document.getElementById('rig');      
       this.direction =
@@ -317,7 +318,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         toolOrientation(this.el.object3D.rotation).yaw;
       this.position = this.el.object3D.getWorldPosition();
       this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
-
+*/
     },
     gripup: function (evt) {
       this.grippress = false;
