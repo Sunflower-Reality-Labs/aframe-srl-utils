@@ -32,6 +32,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.otherHand         = null;   
 
     this.index             = [...el.parentNode.children].indexOf(el);
+    this.handMaterial      = null;
     
     this.origin = new THREE.Vector2();    
     // The nominal height of the actor's feet
@@ -83,7 +84,14 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
     let controlO = toolOrientation(this.el.object3D.rotation);
     let rigO     = toolOrientation(rig.object3D.rotation);
-      
+
+    // The hands, being meshes, might load late
+
+    if (!this.handMaterial) {
+      const mesh = el.getObject3D('mesh');
+      this.handMaterial = mesh && mesh.children && mesh.children[0] && mesh.children[1].material
+    }
+
     // if moving the thumbstick (axis move)...
     if (this.axismove) {
       let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
@@ -218,11 +226,14 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     // You grab a position
     this.grabbed = this.el.object3D.position.clone();
     this.elSphere.setAttribute("material","visible",true);
+    this.handMaterial && this.handMaterial.color.set('red');
   },
   // attempt to let go something
   letGo: function () {
     this.grabbed = null;
-    this.elSphere.setAttribute("material","visible",false1);
+    // replace with  el.object3D.visible = false;
+    this.elSphere.setAttribute("material","visible",false);
+    this.handMaterial && this.handMaterial.color.set('blue');
   },
 
 
