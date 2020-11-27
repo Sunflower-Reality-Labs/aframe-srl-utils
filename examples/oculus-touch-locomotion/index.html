@@ -12,7 +12,7 @@
   <body>
     <a-scene fog="type: linear; density: 0.15; near: 10; far: 30; color: #EEE" background="color: #EEE">      
       <a-assets>
-	      <img id="jayhawk" src="../assets/jawhawk.png">
+      	<img id="jayhawk" src="../assets/jawhawk.png">
       </a-assets>
 
       <a-entity geometry="primitive: plane; width:50; height:50" position="0 0 0" rotation="-90 0 0" material="color: #EEE" shadow="receive: true">
@@ -47,8 +47,8 @@
 	       srl-fix-aspect-ratio
 	       >
       </a-image>
-      
     
+
       <a-entity id="rig"
         position="0 0 0"
         rotation="0 0 0">
@@ -62,9 +62,15 @@
             wasd-controls 
             look-controls="pointerLockEnabled: true">
           </a-entity>
-        <a-entity oculus-touch-controls="hand: left" srl-oculus-touch-locomotion id="left">
+
+        <a-entity 
+          hand-controls="hand: left; handModelStyle: lowPoly; color: #ffe2c9"
+          material="wireframe: true"
+          srl-oculus-touch-locomotion>
         </a-entity>
-        <a-entity oculus-touch-controls="hand: right" srl-oculus-touch-locomotion id="right">
+        <a-entity
+          hand-controls="hand: right; handModelStyle: lowPoly; color: #e7cbb5"
+          srl-oculus-touch-locomotion>
         </a-entity>
       </a-entity>
     </a-scene>

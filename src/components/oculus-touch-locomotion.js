@@ -7,8 +7,6 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     walking: {type: 'number', default: 2 },
     // How fast do you move when running, in m/s    
     running: {type: 'number', default: 10 },
-    // How fast do you move when streching, in m/s    
-    stretching: {type: 'number', default: 1 },
   },
 
   /**
@@ -60,25 +58,6 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.elSphere.setAttribute("position",{x:0,y:0,z:0});
     el.appendChild(this.elSphere);
 
-    this.elBox = document.createElement('a-entity');
-    this.elBox.setAttribute("geometry",
-      {primitive: "octahedron", 
-      radius: 0.1,
-//      radiusTubular: 0.02,
-      //				phiLength: 90,
-//				phiStart: 225,
-//				thetaStart: 65,
-//				thetaLength: 50,
-//        segmentsRadial: 8,
-//        segmentsTubular: 8,
-				segmentsHeight: 16,
-				segmentsWidth: 16				
-			       });      
-    this.elBox.setAttribute("material",
-			       {color: "red", wireframe: true, visible: true});
-    this.elBox.setAttribute("position",{x:0,y:0,z:0});
-    el.appendChild(this.elBox);
-
   },
 
 
@@ -104,18 +83,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
     let controlO = toolOrientation(this.el.object3D.rotation);
     let rigO     = toolOrientation(rig.object3D.rotation);
-
-
-    if (!this.otherHandLog && this.otherHandLog !== this.otherHand) {
-      console.log("otherHand",this.otherHand);
-      this.otherHandLog = this.otherHand;
-    }
       
-    let wp = new THREE.Vector3();
-    el.object3D.getWorldPosition(wp);
-
-    let updown = false;
-
     // if moving the thumbstick (axis move)...
     if (this.axismove) {
       let mv = new THREE.Vector2(this.axismove.x,this.axismove.y);
@@ -124,38 +92,14 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         if (this.thumbstickpress) {
           step = delta * this.data.running;
         }
-        let origin = new THREE.Vector2();
-        if (this.grabbed) {
-          rig.object3D.rotateY(this.axismove.x * 0.02);
-        } else {
-          mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
-          mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
-          rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
-        }
+        mv.multiplyScalar(step * 0.001); // *0.001 because we measure in milliseconds
+        mv.rotateAround(this.origin,-(controlO.yaw+rigO.yaw));
+        rig.object3D.position.add({x:mv.x,y:0,z:mv.y});
       }
-    }
-    if (this.upbuttonpress) {
-      let y = this.data.stretching*delta*0.001;
-      if (this.grippress) {
-      	y *= 0.2;
-      }
-      rig.object3D.position.add({x:0,y:y,z:0});
-    }
-    if (this.downbuttonpress) {
-      let y = this.data.stretching*delta*0.001;
-      if (this.grippress) {
-      	y *= 0.2;
-      }
-      rig.object3D.position.add({x:0,y:-y,z:0});
     }
     
-
+    // if grabbing
     if (this.grabbed) {
-      const vis = this.elSphere.getAttribute("material").visible;      
-
-      if (!vis) {      
-        this.elSphere.setAttribute("material","visible",true);
-      }
       const q = new THREE.Quaternion();
       this.el.object3D.getWorldQuaternion(q);
       // The sphere is fixed in the world
@@ -221,16 +165,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
 
     } else {
-      const vis = this.elSphere.getAttribute("material").visible;      
-      if (vis) {      
-      	this.elSphere.setAttribute("material","visible",false);
-      }
-    }
-
-    if (this.braced) {
-    	this.elBox.setAttribute("material","visible",true);
-    } else {
-    	this.elBox.setAttribute("material","visible",false);
+    	this.elSphere.setAttribute("material","visible",false);
     }
 
   },
@@ -272,10 +207,12 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
   grab: function () {
     // You grab a position
     this.grabbed = this.el.object3D.position.clone();
+    this.elSphere.setAttribute("material","visible",true);
   },
   // attempt to let go something
   letGo: function () {
     this.grabbed = null;
+    this.elSphere.setAttribute("material","visible",false1);
   },
 
 
@@ -289,104 +226,18 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     axismove: function (evt) {
       this.axismove = {x: evt.detail.axis[2], y: evt.detail.axis[3] };
     },
-    thumbsticktouchstart: function (evt)  {
-      this.thumbsticktouched = true;
-    },
     thumbstickdown: function (evt) {
       this.thumbstickpress = true;
-    },
-    thumbsticktouchend: function (evt) {
-      this.thumbsticktouched = false;
     },
     thumbstickup: function (evt) {
       this.thumbstickpress = false;
     },
-    bbuttontouchstart: function (evt) {
-      this.upbuttontouch = true;
-    },
-    bbuttontouchend: function (evt) {
-      this.upbuttontouch = false;
-    },
-    bbuttondown: function (evt) {
-      this.upbuttonpress = true;
-    },
-    bbuttonup: function (evt) {
-      this.upbuttonpress = false;
-    },
-    abuttontouchstart: function (evt) {
-      this.downbuttontouch = true;
-    },
-    abuttontouchend: function (evt) {
-      this.downbuttontouch = false;
-    },
-    abuttondown: function (evt) {
-      this.downbuttonpress = true;
-    },
-    abuttonup: function (evt) {
-      this.downbuttonpress = false;
-    },
-    ybuttontouchstart: function (evt) {
-      this.upbuttontouch = true;
-    },
-    ybuttontouchend: function (evt) {
-      this.upbuttontouch = false;
-    },
-    ybuttondown: function (evt) {
-      this.upbuttonpress = true;
-    },
-    ybuttonup: function (evt) {
-      this.upbuttonpress = false;
-    },
-    xbuttontouchstart: function (evt) {
-      this.downbuttontouch = true;
-    },
-    xbuttontouchend: function (evt) {
-      this.downbuttontouch = false;
-    },
-    xbuttondown: function (evt) {
-      this.downbuttonpress = true;
-    },
-    xbuttonup: function (evt) {
-      this.downbuttonpress = false;
-    },
     triggerdown: function (evt) {
       this.grab();
-/*      
-      let rig = document.getElementById('rig');      
-      this.direction =
-        toolOrientation(this.el.object3D.rotation).yaw +
-        toolOrientation(rig.object3D.rotation).yaw;
-      this.rockDirection =
-        toolOrientation(this.el.object3D.rotation).yaw;
-      this.position = this.el.object3D.getWorldPosition();
-      this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
-*/
     },
     triggerup: function (evt) {
       this.letGo();
     },
-    triggertouchstart: function (evt) {
-      this.triggertouch = true;
-    },
-    triggertouchend: function (evt) {
-      this.triggertouch = false;
-    },
-    gripdown: function (evt) {
-/*      
-      this.grippress = true;
-      let rig = document.getElementById('rig');      
-      this.direction =
-        toolOrientation(this.el.object3D.rotation).yaw +
-        toolOrientation(rig.object3D.rotation).yaw;
-      this.rockDirection =
-        toolOrientation(this.el.object3D.rotation).yaw;
-      this.position = this.el.object3D.getWorldPosition();
-      this.rotation = this.el.object3D.getWorldQuaternion(new THREE.Quaternion()); 
-*/
-    },
-    gripup: function (evt) {
-      this.grippress = false;
-    }
   }
 });
 
