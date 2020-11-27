@@ -119,7 +119,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
       pos.applyQuaternion(rig.object3D.quaternion);
       if (this.otherHand && this.otherHand.grabbed) {
         // Use half the force on each point,
-        // and only in y direction. (x and y are handled by rotations)
+        // and only in y direction. (x and z are handled by rotations)
          rig.object3D.position.add({x:0, y: pos.y / 2, z: 0});
       } else {
         rig.object3D.position.add(pos);
