@@ -225,14 +225,14 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
   grab: function () {
     // You grab a position
     this.grabbed = this.el.object3D.position.clone();
-    this.elSphere.setAttribute("material","visible",true);
+//    this.elSphere.setAttribute("material","visible",true);
     this.handMaterial && this.handMaterial.color.set('red');
   },
   // attempt to let go something
   letGo: function () {
     this.grabbed = null;
     // replace with  el.object3D.visible = false;
-    this.elSphere.setAttribute("material","visible",false);
+//    this.elSphere.setAttribute("material","visible",false);
     this.handMaterial && this.handMaterial.color.set('blue');
   },
 
