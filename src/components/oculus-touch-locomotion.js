@@ -133,14 +133,26 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         p2.sub(p1);
         const dist = p2.length();
         const r0 = p2.angle() - rigO.yaw;
-        const m1 = this.moment.clone().multiplyScalar(1);
-        m1.rotateAround(new THREE.Vector2(0,0), -r0);
+        const m1 = this.moment.clone();
+        m1.rotateAround(this.origin, -r0);
         const a1 = Math.atan(m1.y/dist);
-        const m2 = this.otherHand.moment.clone().multiplyScalar(1);
+        m1.y = 0;
+        m1.rotateAround(this.origin, r0);
+
+        const m2 = this.otherHand.moment.clone();
         m2.rotateAround(new THREE.Vector2(0,0), -r0);
         const a2 = Math.atan(m2.y/dist);
+
+        m2.y = 0;
+        m2.rotateAround(this.origin, r0);
+
+        rig.object3D.position.add({x: (m1.x + m2.x) / 2, y: 0, z: (m1.x + m2.y) / 2});
+
         let a = (a1 - a2);
         // limit a if the distance is small
+        // This is a big of a hack.
+        // We could use the distace between the controllers (aka leverage)
+        // to cap instead.
         if (dist < 0.1 && Math.abs(a) > 0.1) {
           a = Math.max(-0.1,Math.min(0.1,a))
         }
