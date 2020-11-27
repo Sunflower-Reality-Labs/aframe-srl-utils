@@ -164,8 +164,6 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         if (isFinite(ratio)) {
           const centerPoint = p2_3.clone();
           centerPoint.lerp(p1_3, ratio);
-//          document.querySelector('#cube').object3D.position.copy(centerPoint);
-
           const centerPoint2 = new THREE.Vector2(centerPoint.x, centerPoint.z);
           const mv = new THREE.Vector2(0,0); 
           mv.rotateAround(centerPoint2,-a);
