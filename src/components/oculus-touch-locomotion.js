@@ -19,6 +19,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
    */
   init: function () {
     var el = this.el;
+    this.rig      = el.parentNode;
     this.axismove = null;
     this.thumbsticktouched = false;
     this.thumbstickpress   = false;
@@ -32,6 +33,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.otherHand         = null;   
 
     this.index             = [...el.parentNode.children].indexOf(el);
+    this.handControls      = el.components['hand-controls']
+    this.hand              = this.handControls && this.handControls.data.hand
+
     this.handMaterial      = null;
     
     this.origin = new THREE.Vector2();    
@@ -39,6 +43,8 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     this.height = 0;
     // The actual y (up/down) velocity of the actor
     this.velocity = 0;
+
+    this.mode = "none";
 
     this.elSphere = document.createElement('a-entity');
     this.elSphere.setAttribute("geometry",
@@ -58,6 +64,28 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 			       {color: "black", wireframe: true, visible: true});
     this.elSphere.setAttribute("position",{x:0,y:0,z:0});
     el.appendChild(this.elSphere);
+
+    this.elOrb = document.createElement('a-entity');
+    this.elOrb.setAttribute("geometry",
+      {primitive: "dodecahedron", 
+      radius: 0.05,
+//      radiusTubular: 0.02,
+      //				phiLength: 90,
+//				phiStart: 225,
+//				thetaStart: 65,
+//				thetaLength: 50,
+//        segmentsRadial: 8,
+//        segmentsTubular: 8,
+				segmentsHeight: 16,
+				segmentsWidth: 16				
+			       });      
+    this.elOrb.setAttribute("material",
+             {color: "green", wireframe: true, visible: true});
+    const handedness =  this.hand == 'left' ? 1 : -1;
+    this.elOrb.setAttribute("position",{x: handedness * 0.0,y:0.0,z:0});
+    this.elOrb.setAttribute("material","visible",false);
+    el.appendChild(this.elOrb);
+
 
   },
 
@@ -134,9 +162,26 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
         // Both hands are moving, so find the angle (in 2D)
         // and the rotation point (in 2D)
         // and move the rig.
-        const p1_3 = this.el.object3D.position.clone();
+        let p1_3 = this.el.object3D.position.clone();
+/*        
+        Figure out world in different space
+        p1_3 = this.elOrb.object3D.position.clone();
+        // https://discourse.threejs.org/t/finding-position-of-an-object-relative-to-a-parent/2068/4
+
+        this.el.object3D.localToWorld( p1_3 ); // The parent of this.elOrb
+        rig.object3D.worldToLocal( p1_3 );     // The coord-space of our movement
+
+//        // convert `v` into vector from object to target
+//        p1_3.sub( rig.object3D.position );
+
+        document.querySelector('#' + this.hand + '-box').object3D.position.copy(p1_3);
+*/
         const p1 = new THREE.Vector2(p1_3.x,p1_3.z);
-        const p2_3 = this.otherHand.el.object3D.position.clone();
+        let p2_3 = this.otherHand.elOrb.object3D.position.clone();
+
+        this.otherHand.el.object3D.localToWorld( p2_3 ); // The parent of elOrb
+        rig.object3D.worldToLocal( p2_3 );     // The coord-space of our movement
+        
         const p2 = new THREE.Vector2(p2_3.x,p2_3.z);
         p2.sub(p1);
         const dist = p2.length();
@@ -183,7 +228,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 
 
     } else {
-    	this.elSphere.setAttribute("material","visible",false);
+//    	this.elSphere.setAttribute("material","visible",false);
     }
 
   },
@@ -225,7 +270,7 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
   grab: function () {
     // You grab a position
     this.grabbed = this.el.object3D.position.clone();
-//    this.elSphere.setAttribute("material","visible",true);
+    this.elSphere.setAttribute("material","visible",true);
     this.handMaterial && this.handMaterial.color.set('red');
   },
   // attempt to let go something
@@ -235,7 +280,23 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
 //    this.elSphere.setAttribute("material","visible",false);
     this.handMaterial && this.handMaterial.color.set('blue');
   },
-
+  orbModes:  [ "none", "position" ],
+  changeOrbMode: function () {
+    AFRAME.log("mode:" + this.mode)
+    let ix = this.orbModes.indexOf(this.mode) + 1;
+    AFRAME.log("ix:" + ix)
+    if (ix == this.orbModes.length) {
+      ix = 0;
+    }
+    this.mode = this.orbModes[ix];
+    AFRAME.log("new mode:" + this.mode)
+    this.elOrb.setAttribute("material","visible",this.mode != "none");
+    const orbColors = {
+      position: "green"
+    }
+    const orbColor = orbColors[this.mode];
+    orbColor && this.elOrb.setAttribute("material","color",orbColor);
+  },
 
   /**
    * Event handlers that automatically get attached or detached based on scene state.
@@ -258,6 +319,9 @@ AFRAME.registerComponent('srl-oculus-touch-locomotion', {
     },
     triggerup: function (evt) {
       this.letGo();
+    },
+    gripdown: function (evt) {
+      this.changeOrbMode();
     },
   }
 });
