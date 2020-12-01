@@ -82,6 +82,7 @@
     "sinon": "^1.17.5",
     "sinon-chai": "^2.8.0",
     "snazzy": "^4.0.0",
+    "stable": "^0.1.8",
     "superagent": "^3.8.2",
     "webpack": "^4.29.5",
     "webpack-cli": "*",

@@ -1,6 +1,6 @@
 var fs = require("fs"),
   PNG = require("pngjs").PNG;
-
+const stable = require('stable');
  
 fs.createReadStream("in.png")
   .pipe(
@@ -82,17 +82,52 @@ fs.createReadStream("in.png")
 */      
     }
      
-    const tess = tesselate(0, 0, this.width, this.height);
-    console.log("tess",tess)
+    let tess = tesselate(0, 0, this.width, this.height);
+//    console.log("tess",tess)
     tess.forEach(([x,y,xd,yd]) => {
       if (xd > 1 || yd > 1) {
-        console.log('bad tess', x,y,xd, yd)
+//        console.log('bad tess', x,y,xd, yd)
       }
     })
-    console.log("tess",tess)
+//    console.log("tess",tess)
+
+    let merges = 0;
+    do {
+      merges = 0;
+      tess = stable(tess,([x0,y0,xd0,yd0],[x1,y1,xd1,yd1]) => x0 - x1);
+      tess = stable(tess,([x0,y0,xd0,yd0],[x1,y1,xd1,yd1]) => y0 - y1);
+      for(let i = 0; i < tess.length - 1; i++) {
+        const [x0,y0,xd0,yd0] = tess[i]
+        const [x1,y1,xd1,yd1] = tess[i + 1]
+//        console.log(i, x0, y0, xd0, yd0, x1,y1,xd1,yd1, y0 == y1 && x0 + xd0 == x1 && yd0 == yd1);        
+        if (y0 == y1 && x0 + xd0 == x1 && yd0 == yd1) {
+//          console.log(i, x0, y0, xd0, yd0, x1,y1,xd1,yd1);        
+          tess[i] = null;
+          tess[i+1] = [ x0, y0, xd0 + xd1, yd0 ]
+          merges++;
+        }
+      }
+      tess = tess.filter(x => x != null);
+
+      tess = stable(tess,([x0,y0,xd0,yd0],[x1,y1,xd1,yd1]) => y0 - y1);
+      tess = stable(tess,([x0,y0,xd0,yd0],[x1,y1,xd1,yd1]) => x0 - x1);
+      for(let i = 0; i < tess.length - 1; i++) {
+        const [x0,y0,xd0,yd0] = tess[i]
+        const [x1,y1,xd1,yd1] = tess[i + 1]
+        if (x0 == x1 && y0 + yd0 == y1 && xd0 == xd1) {
+          tess[i] = null;
+          tess[i+1] = [ x0, y0, xd0, yd0 + yd1 ]
+          merges++;
+        }
+      }
+      tess = tess.filter(x => x != null);
+      console.log('merged ' + merges);
+    } while(merges > 0)
+
+    tess = tess.filter(([x0,y0,xd0,yd0]) => xd0 > 1 || yd0 > 1)
 
     const tess2 = tess.map(([x,y,xd,yd]) => [x,y,x+xd,y+yd]);
-    console.log("tess2",tess2)
+//    console.log("tess2",tess2)
 
     const points = {}
     const pix = (x,y) => x + ',' + y;
