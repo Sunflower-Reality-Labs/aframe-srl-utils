@@ -94,6 +94,25 @@ fs.createReadStream("in.png")
     let merges = 0;
     do {
       merges = 0;
+
+      for(r = 0;r < 4; r++) {
+        for(let i = 0; i < tess.length - 1; i++) {
+          const [x0,y0,xd0,yd0] = tess[i]
+          // Now, we find all the squares with x == x0 + xd0
+          const match = tess.filter(([x,y,xd,yd]) => x == x0 + xd0 && y >= y0 && (y + yd) <= y0 + yd0);
+          if (true && match.length == 1 && match[0][3] == yd0) {
+            tess[i] = [x0, y0, xd0 + match[0][2], yd0];
+            tess = tess.filter(t => t.toString() != match[0].toString());
+            merges++;
+          } else if (match.length > 0) {
+            console.log(i, x0, y0, xd0, yd0, match.length);
+          }
+        }
+        console.log("rotate!")
+        tess = tess.map(([x0,y0,xd0,yd0]) => [-y0 -yd0, x0, yd0, xd0])
+      }
+/*
+
       tess = stable(tess,([x0,y0,xd0,yd0],[x1,y1,xd1,yd1]) => x0 - x1);
       tess = stable(tess,([x0,y0,xd0,yd0],[x1,y1,xd1,yd1]) => y0 - y1);
       for(let i = 0; i < tess.length - 1; i++) {
@@ -121,6 +140,7 @@ fs.createReadStream("in.png")
         }
       }
       tess = tess.filter(x => x != null);
+ */      
       console.log('merged ' + merges);
     } while(merges > 0)
 
