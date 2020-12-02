@@ -100,15 +100,22 @@ fs.createReadStream("in.png")
           const [x0,y0,xd0,yd0] = tess[i]
           // Now, we find all the squares with x == x0 + xd0
           const match = tess.filter(([x,y,xd,yd]) => x == x0 + xd0 && y >= y0 && (y + yd) <= y0 + yd0);
-          if (true && match.length == 1 && match[0][3] == yd0) {
-            tess[i] = [x0, y0, xd0 + match[0][2], yd0];
-            tess = tess.filter(t => t.toString() != match[0].toString());
-            merges++;
-          } else if (match.length > 0) {
-            console.log(i, x0, y0, xd0, yd0, match.length);
+          if (match.length >= 1 && match.map(([x,y,xd,yd]) => yd).reduce((a, b) => a + b,0) == yd0) {
+            const shortest = match.map(([x,y,xd,yd]) => xd).reduce((x,y) => Math.min(x,y));
+//            console.log("shortest", shortest, match.length, match)
+            if (match.length) {
+              tess[i] = [x0, y0, xd0 + shortest, yd0];
+              match.forEach(([xM,yM,xdM,ydM]) => {
+                tess = tess.map(([x,y,xd,yd]) => 
+                  xM == x && yM == y ? [x + shortest,y,xd - shortest, yd] : [x,y,xd,yd]);
+              })
+              tess = tess.filter(([x,y,xd,yd]) => xd != 0);
+              merges++;
+            } else if (match.length > 0) {
+  //            console.log(i, x0, y0, xd0, yd0, match.length);
+            }
           }
         }
-        console.log("rotate!")
         tess = tess.map(([x0,y0,xd0,yd0]) => [-y0 -yd0, x0, yd0, xd0])
       }
 /*
@@ -144,19 +151,25 @@ fs.createReadStream("in.png")
       console.log('merged ' + merges);
     } while(merges > 0)
 
-    tess = tess.filter(([x0,y0,xd0,yd0]) => xd0 > 1 || yd0 > 1)
+    // Remove single pixels
+//    tess = tess.filter(([x0,y0,xd0,yd0]) => xd0 > 1 || yd0 > 1)
 
-    const tess2 = tess.map(([x,y,xd,yd]) => [x,y,x+xd,y+yd]);
+// Now we turn the quads into triangles.
+
+    let tess2 = tess
+      .map(([x,y,xd,yd]) => 
+          [ [x,y,x+xd,y+yd,x+xd,y]
+          , [x,y,x,y+yd,x+xd,y+yd]
+          ])
+      .reduce((a,b) => [].concat(a,b), [])
 //    console.log("tess2",tess2)
 
     const points = {}
     const pix = (x,y) => x + ',' + y;
-    for(const [x0,y0,x1,y1] of tess2) {
-      for (const x of [x0,x1]) {
-        for (const y of [y0,y1]) {
-          points[pix(x,y)] = null;
-        }  
-      }
+    for(const [x0,y0,x1,y1,x2,y2] of tess2) {
+      points[pix(x0,y0)] = null;
+      points[pix(x1,y1)] = null;
+      points[pix(x2,y2)] = null;
     }
     let uq = 1; // obj is 1-indexed
     for (const p in points) {
@@ -192,11 +205,9 @@ fs.createReadStream("in.png")
     obj_file.push("#polygons")
 
     const poly = (x,y) => [points[pix(x,y)], points[pix(x,y)], 1].join('/')
-    for(const [x0,y0,x1,y1] of tess2) {
-      obj_file.push(["f", poly(x0,y0), poly(x1, y0), poly(x1, y1)].join(' '))
-      obj_file.push(["f", poly(x0,y0), poly(x1, y1), poly(x0, y1)].join(' '))
+    for(const [x0,y0,x1,y1,x2,y2] of tess2) {
+      obj_file.push(["f", poly(x0,y0), poly(x1, y1), poly(x2, y2)].join(' '))
     }
-
 
     fs.writeFile("out.obj", obj_file.join('\n'), () => {});
 
